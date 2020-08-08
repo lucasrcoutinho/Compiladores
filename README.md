@@ -1,4 +1,5 @@
-# Compiladores-MaquinaVirtual
+# Compiladores
+
 Projeto de implementação de um compilador
 
 Neste projeto serão realizados os seguintes itens:
