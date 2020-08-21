@@ -5,7 +5,6 @@
  */
 package Backend;
 
-import Frontend.FramePrincipal;
 import Frontend.MainFrame;
 
 /**
@@ -17,7 +16,6 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        //FramePrincipal bla = new FramePrincipal();
         new MainFrame().setVisible(true);  
     }
     
