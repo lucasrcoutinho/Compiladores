@@ -1,9 +1,13 @@
 package Backend;
+import java.util.ArrayList;
 
 public class Facede {
     
-    public void obtemArquivo(String caminho)
+    public ArrayList obtemArquivo(String caminho)
     {
-        LeArquivo.ler(caminho);//Le arquivos com instruções
+        LeArquivo dadosArquivo = new LeArquivo(caminho);
+        dadosArquivo.ler();
+        return dadosArquivo.getDados();
+        
     }
 }

@@ -19,10 +19,10 @@ public class MainFrame extends javax.swing.JFrame {
      * Creates new form MainFrame
      */
     
-    Facede FacedeInstancia;
+    Facede facadeInstancia;
     
     public MainFrame() {
-        FacedeInstancia = new Facede();
+        facadeInstancia = new Facede();
         initComponents();
     }
 
@@ -290,15 +290,13 @@ public class MainFrame extends javax.swing.JFrame {
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.showOpenDialog(this);
       
-        ArrayList<String> dadoArquivo = new ArrayList<>();
-        
         diretorioTexto.setText(fileChooser.getSelectedFile().getAbsolutePath());
-        //dadoArquivo = FacedeInstancia.obtemArquivo(fileChooser.getSelectedFile().getAbsolutePath());
-        //areaCodigo.setText(dadoArquivo.toString());
         
-        for(int i = 0; i < dadoArquivo.size(); i++)
+        ArrayList<String> dadoArquivo = new ArrayList<>();
+        dadoArquivo = facadeInstancia.obtemArquivo(fileChooser.getSelectedFile().getAbsolutePath());
+        for(int i = 0; i<dadoArquivo.size(); i++)
         {
-            System.out.printf(dadoArquivo.get(i) + "\n");
+            areaCodigo.append(dadoArquivo.get(i) + '\n');
         }
     }//GEN-LAST:event_botaoDiretorioActionPerformed
 

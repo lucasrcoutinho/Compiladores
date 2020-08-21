@@ -7,9 +7,16 @@ import java.io.IOException;
 
 public class LeArquivo 
 {
-    public static ArrayList ler(String caminho)
-    {   
-        ArrayList<String> linhas = new ArrayList<>();
+    private ArrayList<String> linhas = new ArrayList<>();
+    private String caminho;
+    
+    public LeArquivo(String caminho)
+    {
+        this.caminho = caminho;
+    }
+   
+    public void ler()
+    {          
         try
         {
             FileReader arq = new FileReader(caminho);
@@ -27,7 +34,10 @@ public class LeArquivo
         {
             System.err.printf("Erro na leitura do arquivo: %s \n", e.getMessage());
         }
-        
+    }
+    
+    public ArrayList getDados()
+    {
         return linhas;
     }
 }
