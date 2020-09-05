@@ -29,7 +29,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jPanel2" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
-                      <Component id="jScrollPane3" max="32767" attributes="0"/>
+                      <Component id="jScrollPane3" pref="853" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -162,7 +162,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="javax.swing.JTable" name="tebelaMemoria">
+            <Component class="javax.swing.JTable" name="tabelaMemoria">
               <Properties>
                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                   <Table columnCount="2" rowCount="1">
@@ -210,14 +210,16 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                      <Component id="jLabel1" alignment="0" max="32767" attributes="0"/>
-                      <Component id="entradaDados" alignment="0" pref="380" max="32767" attributes="0"/>
-                  </Group>
-                  <EmptySpace pref="89" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="saidaDados" pref="380" max="32767" attributes="0"/>
-                      <Component id="jLabel2" max="32767" attributes="0"/>
+                      <Component id="jLabel1" pref="380" max="32767" attributes="0"/>
+                      <Component id="entradaDados" max="32767" attributes="0"/>
+                  </Group>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Component id="jButton1" min="-2" pref="57" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="jLabel2" pref="380" max="32767" attributes="0"/>
+                      <Component id="saidaDados" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -225,16 +227,24 @@
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="1" attributes="0">
+              <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace max="32767" attributes="0"/>
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="saidaDados" alignment="1" pref="133" max="32767" attributes="0"/>
-                      <Component id="entradaDados" alignment="1" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" attributes="0">
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="32767" attributes="0"/>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="saidaDados" alignment="1" pref="133" max="32767" attributes="0"/>
+                              <Component id="entradaDados" alignment="1" max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <Group type="102" attributes="0">
+                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          <Component id="jButton1" min="-2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
               </Group>
           </Group>
@@ -259,6 +269,14 @@
             <Property name="horizontalAlignment" type="int" value="0"/>
             <Property name="text" type="java.lang.String" value="Sa&#xed;da"/>
           </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="jButton1">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="OK"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

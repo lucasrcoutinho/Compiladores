@@ -1,28 +1,11 @@
-STR n (Armazenar valor):
-M[n]:=M[s]; s:=s-1
-Desvios (não há o incremento implícito sobre i)
-JMP t (Desviar sempre):
-i:= t
-JMPF t (Desviar se falso):
-se M[s] = 0 então i:=t senão i:=i + 1;
-s:=s-1
-Operação Nula
-NULL (Nada)
+STR n
+JMP t
+JMPF t
+NULL
 Entrada
-RD (Leitura):
-S:=s + 1; M[s]:= “próximo valor de entrada”.
-Saída
-PRN (Impressão):
-“Imprimir M[s]”; s:=s-1
-Alocação e Desalocação de Variáveis
-ALLOC m,n (Alocar memória):
-Para k:=0 até n-1 faça
-{s:=s + 1; M[s]:=M[m+k]}
-DALLOC m,n (Desalocar memória):
-Para k:=n-1 até 0 faça
-{M[m+k]:=M[s]; s:=s - 1}
-Chamada de Rotina
-CALL t (Chamar procedimento ou função):
-S:=s + 1; M[s]:=i + 1; i:=t
-RETURN (Retornar de procedimento):
-i:=M[s]; s:=s - 1
+RD
+PRN
+ALLOC m,n
+DALLOC m,n
+CALL t
+RETURN
