@@ -4,15 +4,23 @@ import java.util.ArrayList;
 
 public class PilhaDados {
     
-    private ArrayList<String> pilhaDados = new ArrayList();
+    private ArrayList<Double> pilhaDados = new ArrayList();
     
-    public int insereDado(String dado)
+    public int insereDado(Double dado, int posicao)
     {
-        pilhaDados.add(dado);
-        return pilhaDados.size();
+        if(pilhaDados.size() <= posicao) //Verificando se a posicao ja existe, caso sim, sobrescreve.
+        {
+            pilhaDados.set(posicao, dado);
+            return pilhaDados.size();
+        }
+        else
+        {
+            pilhaDados.add(posicao, dado);
+            return pilhaDados.size();
+        }  
     }
     
-    public String lePilha(int posicao)
+    public Double lePilha(int posicao)
     {
         return pilhaDados.get(posicao);
     }
