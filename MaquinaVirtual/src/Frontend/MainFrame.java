@@ -96,6 +96,11 @@ public class MainFrame extends javax.swing.JFrame {
         debugCheckBox.setText("Debug");
 
         botaoExecutar.setText("Executar");
+        botaoExecutar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                botaoExecutarMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -231,6 +236,10 @@ public class MainFrame extends javax.swing.JFrame {
             modelo.addRow(new Object[]{dadoArquivo.get(i)});
         }
     }//GEN-LAST:event_botaoDiretorioActionPerformed
+
+    private void botaoExecutarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_botaoExecutarMouseClicked
+        facadeInstancia.executaInstrucao();
+    }//GEN-LAST:event_botaoExecutarMouseClicked
 
     /**
      * @param args the command line arguments

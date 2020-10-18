@@ -7,7 +7,12 @@ public class Facede {
     {
         LeArquivo dadosArquivo = new LeArquivo(caminho);
         dadosArquivo.ler();
-        return dadosArquivo.getDados();
+        return dadosArquivo.getComandos();
         
+    }
+    
+    public void executaInstrucao(){
+    
+    
     }
 }
