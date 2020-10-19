@@ -94,6 +94,7 @@ public class AnalisadorLexico {
                 trataErro("Caractere nao reconhecido");
             }        
         }
+        System.out.println("Char: " + caractere);
         System.out.println("Token: " + token.getSimbolo());
         
         if (caractere == 0){//Fim do arquivo

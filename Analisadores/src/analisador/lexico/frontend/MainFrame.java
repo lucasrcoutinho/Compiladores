@@ -165,8 +165,9 @@ facadeInstancia.chamaSintatico(caminho);
         if (linhas.size()<=1){
             modelo.addRow(new Object[]{"", "", ""});
         }
-        /*
+        
         try{
+            System.out.println(facadeInstancia.getErroSintatico());
             msg = facadeInstancia.getErroSintatico().split(" -");        
             JOptionPane.showMessageDialog(null, msg[0]);
             msg = msg[0].split(": ");
@@ -174,7 +175,7 @@ facadeInstancia.chamaSintatico(caminho);
             TabelaPrint.setSelectionBackground(Color.red);
         }catch(java.lang.ArrayIndexOutOfBoundsException e){
             
-        }*/
+        }
         //if(facadeInstancia.getErro())
         //{
             //CampoErro.setText("ERRO na linha " + facadeInstancia.getLinhaErro());

@@ -12,6 +12,7 @@ import analisador.lexico.backend.Token;
  *
  * @author lucas
  */
+
 public class AnalisadorSintatico {    
     //AnalisadorLexico lexico = new AnalisadorLexico();
     Token token;     
@@ -344,9 +345,9 @@ public class AnalisadorSintatico {
         if (erro == false){
             return("Sucesso");
         }else if (token.getErro() == ""){
-            return("Erro sintatico na linha: " + token.getLinha() + mensagemErro);
+            return("Erro sintatico na linha: " + token.getLinha() + " - " + mensagemErro);
         }        
-        return("Erro lexico na linha: " + token.getLinha() + " " + token.getErro());
+        return("Erro lexico na linha: " + token.getLinha() + " - " + token.getErro());
     }
 }
 

@@ -60,7 +60,7 @@ public class LeArquivo {
         try (RandomAccessFile  in = new RandomAccessFile (arq, "r")) {
              in.seek(indice);
              c = in.read();
-             System.out.print((char)c);  // this method will do whatever you want
+             //System.out.print((char)c);  // this method will do whatever you want
              indice++;
         }
         catch(IOException e){
