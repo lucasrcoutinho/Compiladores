@@ -36,6 +36,9 @@ public class AnalisadorSintatico {
 
     private void getToken(){
         token = analisadorLexico.getToken();
+        if (token.getErro() != ""){
+            trataErro(token.getErro());
+        }
     }
     
     private void analisadorSintatico(){
@@ -323,8 +326,7 @@ public class AnalisadorSintatico {
     private void analisaAtribuicao(){
         getToken();
         analisaExpressao();
-    }   
-
+    }  
     
     private void trataErro(String metodoChamouErro){
         if (!erro){
@@ -339,19 +341,12 @@ public class AnalisadorSintatico {
     }
     
     public String getErro(){
-        if (linhaErroLexico == -1 && linhaErroSintatico == -1)
+        if (erro == false){
             return("Sucesso");
-        else if(linhaErroLexico == -1){
-                return("Erro sintatico na linha: " + linhaErroSintatico + mensagemErro);
-            }else if(linhaErroSintatico == -1){
-                return("Erro lexico na linha: " + linhaErroLexico + descricaoErroLexico);
-            }else if (linhaErroLexico < linhaErroSintatico){
-                return("Erro lexico na linha: " + linhaErroLexico + descricaoErroLexico);
-            }else if(linhaErroLexico > linhaErroSintatico){
-                return("Erro sintatico na linha: " + linhaErroSintatico + mensagemErro);
-            }else
-                return("Erro lexico na linha: " + linhaErroSintatico + descricaoErroLexico);
-        
+        }else if (token.getErro() == ""){
+            return("Erro sintatico na linha: " + token.getLinha() + mensagemErro);
+        }        
+        return("Erro lexico na linha: " + token.getLinha() + " " + token.getErro());
     }
 }
 

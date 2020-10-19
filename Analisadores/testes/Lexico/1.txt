@@ -1,6 +1,6 @@
-programa test1;;
+program@ test1@;
 
-var a,b,c: inteiro;
+var a,b@,c: inteiro@;
 
 
 procedimento 1analisa1;

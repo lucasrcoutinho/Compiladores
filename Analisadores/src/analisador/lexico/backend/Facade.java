@@ -32,8 +32,7 @@ public class Facade {
     
     //Provisorio para testar o sintatico, não pode ficar assim!!!
     public void chamaSintatico(String caminho){
-        sintatico.inicioSintatico(caminho);
-        
+        sintatico.inicioSintatico(caminho);        
     }
     
     public ArrayList getArquivoFonte(String caminho){

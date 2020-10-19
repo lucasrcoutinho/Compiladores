@@ -90,6 +90,7 @@ public class AnalisadorLexico {
             }else if(caractere == '!'){
                 trataDif();
             }else{
+                System.out.println("Caractere nao reconhecido");
                 trataErro("Caractere nao reconhecido");
             }        
         }
