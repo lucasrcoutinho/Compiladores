@@ -23,9 +23,15 @@ public class Maquina {
         }
     }
     
+    
     public void executaInstrucoes(boolean debug, int parada)
     {
         int contadorInstExecutadas = 0;
+        double num1 = 0;
+        double num2 = 0;
+        String[] mn;
+        int n;
+        int m;
         
         String linha = pilhaPrograma.lePilha(reg_i);
         String[] instrucao = linha.split(" "); //pos 0 = instrucao, pos 1 = atriuto
@@ -42,208 +48,159 @@ public class Maquina {
             {
                 switch(instrucao[0])
                 {
-                    case "LDC" :
-                    {
+                    case "LDC" :                    
                         reg_s++;
                         pilhaDados.insereDado(Double.parseDouble(instrucao[1]), reg_s);  //inseriando o dado contido no atributo da instrucao na posicao reg_s
-                    }
                     break;
                     
                     case "LDV" : 
-                    {
                         reg_s++;
                         pilhaDados.insereDado(pilhaDados.lePilha(Integer.parseInt(instrucao[1])), reg_s);  //inseriando o dado contido no atributo da instrucao na posicao reg_s
-                    }
                     break;
                     
                     case "ADD" : 
-                    {
-                        double num1 = pilhaDados.lePilha(reg_s - 1);
-                        double num2 = pilhaDados.lePilha(reg_s);
+                        num1 = pilhaDados.lePilha(reg_s - 1);
+                        num2 = pilhaDados.lePilha(reg_s);
                         
                         pilhaDados.insereDado((num1 + num2), (reg_s - 1));
                         reg_s--;
-                    }
                     break;
                     
                     case "SUB" : 
-                    {
-                        double num1 = pilhaDados.lePilha(reg_s - 1);
-                        double num2 = pilhaDados.lePilha(reg_s);
-                        
+                        num1 = pilhaDados.lePilha(reg_s - 1);
+                        num2 = pilhaDados.lePilha(reg_s);                        
                         pilhaDados.insereDado((num1 - num2), (reg_s - 1));
                         reg_s--;
-                    }
                     break;
                     
                     case "MULT" : 
-                    {
-                        double num1 = pilhaDados.lePilha(reg_s - 1);
-                        double num2 = pilhaDados.lePilha(reg_s);
+                        num1 = pilhaDados.lePilha(reg_s - 1);
+                        num2 = pilhaDados.lePilha(reg_s);
                         
-                        pilhaDados.insereDado((num1 * num2), (reg_s - 1));
-                        reg_s--;
-                    }
+                        //pilhaDados.insereDado((num1 * num2), (reg_s - 1));
+                        //reg_s--;
                     break;
                     
                     case "DIVI" :
-                    {
-                        double num1 = pilhaDados.lePilha(reg_s - 1);
-                        double num2 = pilhaDados.lePilha(reg_s);
+                        num1 = pilhaDados.lePilha(reg_s - 1);
+                        num2 = pilhaDados.lePilha(reg_s);
                         
                         pilhaDados.insereDado((num1 / num2), (reg_s - 1));
                         reg_s--;
-                    }
                     break;
                     
                     case "INV" :
-                    {
-                        double num = pilhaDados.lePilha(reg_s);
-                        pilhaDados.insereDado((num*(-1)), reg_s);
-                    }
+                        num1 = pilhaDados.lePilha(reg_s);
+                        pilhaDados.insereDado((num1*(-1)), reg_s);
                     break;
                     
                     case "AND" :
-                    {
-                        double num1 = pilhaDados.lePilha(reg_s - 1);
-                        double num2 = pilhaDados.lePilha(reg_s);
+                        num1 = pilhaDados.lePilha(reg_s - 1);
+                        num2 = pilhaDados.lePilha(reg_s);
                         
-                        if(num1 == 1 && num2 == 1)
-                        {
+                        if(num1 == 1 && num2 == 1)                        {
                              pilhaDados.insereDado((double)1, (reg_s - 1));
                         }
-                        else
-                        {
+                        else{
                             pilhaDados.insereDado((double)0, (reg_s - 1));
                         }
-                        reg_s--;
-                    }
+                        //reg_s--;
                     break;
                     
                     case "OR" :
-                    {
-                        double num1 = pilhaDados.lePilha(reg_s - 1);
-                        double num2 = pilhaDados.lePilha(reg_s);
+                        num1 = pilhaDados.lePilha(reg_s - 1);
+                        num2 = pilhaDados.lePilha(reg_s);
                         
-                        if(num1 == 1 || num2 == 1)
-                        {
-                             pilhaDados.insereDado((double)1, (reg_s - 1));
+                        if(num1 == 1 || num2 == 1){
+                            pilhaDados.insereDado((double)1, (reg_s - 1));
                         }
-                        else
-                        {
+                        else                        {
                             pilhaDados.insereDado((double)0, (reg_s - 1));
                         }
                         reg_s--;
-                    }
                     break;
                     
                     case "NEG" :
-                    {
-                        double num = pilhaDados.lePilha(reg_s);
-                        pilhaDados.insereDado((1 - num), reg_s);
-                    }
+                        num1 = pilhaDados.lePilha(reg_s);
+                        pilhaDados.insereDado((1 - num1), reg_s);
                     break;
                     
                     case "CME" : 
-                    {
-                        double num1 = pilhaDados.lePilha(reg_s - 1);
-                        double num2 = pilhaDados.lePilha(reg_s);
+                        num1 = pilhaDados.lePilha(reg_s - 1);
+                        num2 = pilhaDados.lePilha(reg_s);
                         
-                        if(num1 < num2)
-                        {
+                        if(num1 < num2)                        {
                              pilhaDados.insereDado((double)1, (reg_s - 1));
                         }
-                        else
-                        {
+                        else                        {
                             pilhaDados.insereDado((double)0, (reg_s - 1));
                         }
                         reg_s--;
-                    }
                     break;
                     
                     case "CMA" :
-                    {
-                        double num1 = pilhaDados.lePilha(reg_s - 1);
-                        double num2 = pilhaDados.lePilha(reg_s);
+                        num1 = pilhaDados.lePilha(reg_s - 1);
+                       num2 = pilhaDados.lePilha(reg_s);
                         
-                        if(num1 > num2)
-                        {
+                        if(num1 > num2)                        {
                              pilhaDados.insereDado((double)1, (reg_s - 1));
                         }
-                        else
-                        {
+                        else                        {
                             pilhaDados.insereDado((double)0, (reg_s - 1));
                         }
                         reg_s--;
-                    }
                     break;
                     
                     case "CEQ" :
-                    {
-                        double num1 = pilhaDados.lePilha(reg_s - 1);
-                        double num2 = pilhaDados.lePilha(reg_s);
+                        num1 = pilhaDados.lePilha(reg_s - 1);
+                        num2 = pilhaDados.lePilha(reg_s);
                         
-                        if(num1 == num2)
-                        {
+                        if(num1 == num2){
                              pilhaDados.insereDado((double)1, (reg_s - 1));
                         }
-                        else
-                        {
+                        else{
                             pilhaDados.insereDado((double)0, (reg_s - 1));
                         }
                         reg_s--;
-                    }
                     break;
                     
                     case "CDIF" :
-                     {
-                        double num1 = pilhaDados.lePilha(reg_s - 1);
-                        double num2 = pilhaDados.lePilha(reg_s);
+                        num1 = pilhaDados.lePilha(reg_s - 1);
+                        num2 = pilhaDados.lePilha(reg_s);
                         
-                        if(num1 != num2)
-                        {
+                        if(num1 != num2){
                              pilhaDados.insereDado((double)1, (reg_s - 1));
                         }
-                        else
-                        {
+                        else{
                             pilhaDados.insereDado((double)0, (reg_s - 1));
                         }
                         reg_s--;
-                    }
                     break;
                     
                     case "CMEQ" :
-                    {
-                        double num1 = pilhaDados.lePilha(reg_s - 1);
-                        double num2 = pilhaDados.lePilha(reg_s);
+                        num1 = pilhaDados.lePilha(reg_s - 1);
+                        num2 = pilhaDados.lePilha(reg_s);
                         
-                        if(num1 <= num2)
-                        {
+                        if(num1 <= num2){
                              pilhaDados.insereDado((double)1, (reg_s - 1));
                         }
-                        else
-                        {
+                        else{
                             pilhaDados.insereDado((double)0, (reg_s - 1));
                         }
                         reg_s--;
-                    }
                     break;
                     
                     case "CMAQ" :
-                    {
-                        double num1 = pilhaDados.lePilha(reg_s - 1);
-                        double num2 = pilhaDados.lePilha(reg_s);
+                        num1 = pilhaDados.lePilha(reg_s - 1);
+                        num2 = pilhaDados.lePilha(reg_s);
                         
-                        if(num1 >= num2)
-                        {
+                        if(num1 >= num2){
                              pilhaDados.insereDado((double)1, (reg_s - 1));
                         }
-                        else
-                        {
+                        else{
                             pilhaDados.insereDado((double)0, (reg_s - 1));
                         }
                         reg_s--;
-                    }
                     break;
                     
                     case "START" :
@@ -251,46 +208,34 @@ public class Maquina {
                     break;
                     
                     case "HLT" :
-                    {
                         debug = true;
                         contadorInstExecutadas = parada + 1; 
-                    }
                     break;
                     
                     case "SRT" :
-                    {
-                        int n = Integer.parseInt(instrucao[1]);
+                        /*n = Integer.parseInt(instrucao[1]);
                         pilhaDados.insereDado(pilhaDados.lePilha(reg_s), n);
                         
-                        reg_s--;
-                    }
+                        reg_s--;*/
                     break;
                     
                     case "JMP" : 
-                    {
-                        reg_i = Integer.parseInt(instrucao[1]);
-                    }
+                        //reg_i = Integer.parseInt(instrucao[1]);
                     break;
                     
                     case "JMPF" :
-                    {
-                        if(pilhaDados.lePilha(reg_s) == 0)
-                        {
+                        /*if(pilhaDados.lePilha(reg_s) == 0){
                             reg_i = Integer.parseInt(instrucao[1]);
                         }
-                        else
-                        {
+                        else{
                             reg_i = reg_i + 1;
                         }
                         
-                        reg_s--;
-                    }
+                        reg_s--;*/
                     break;
                     
                     case "NULL" :
-                    {
                         //nao faz nada
-                    }
                     break;
                     
                     case "RD" : System.out.println("");   //!!!!!!!!!!!!!!!!!!!Implementar
@@ -300,46 +245,34 @@ public class Maquina {
                     break;
                     
                     case "ALLOC" :
-                    {
-                        String[] mn = instrucao[1].split(",");
-                        int m = Integer.parseInt(mn[0]);
-                        int n = Integer.parseInt(mn[1]);
-                        
-                        for(int k = 0; k < n-1; k++)
-                        {
+                        mn = instrucao[1].split(",");
+                        m = Integer.parseInt(mn[0]);
+                        n = Integer.parseInt(mn[1]);
+                        for(int k = 0; k < 1-1; k++){
                             reg_s++;
                             pilhaDados.insereDado(pilhaDados.lePilha(m+k), pilhaDados.lePilha(reg_s).intValue());
                         }
-                    }
                     break;
                     
                     case "DALLOC" :
-                    {
-                        String[] mn = instrucao[1].split(",");
-                        int m = Integer.parseInt(mn[0]);
-                        int n = Integer.parseInt(mn[1]);
-                        
-                        for(int k = n-1; k > n - 1; k--) // De 0 ate n -1
-                        { 
+                        mn = instrucao[1].split(",");
+                        m = Integer.parseInt(mn[0]);
+                        n = Integer.parseInt(mn[1]);                      
+                        for(int k = n-1; k > n - 1; k--){ // De 0 ate n -1 
                             pilhaDados.insereDado(pilhaDados.lePilha(reg_s) , pilhaDados.lePilha(m+k).intValue());
                             reg_s--;
                         }
-                    }
                     break;
                     
                     case "CALL" :
-                    {
                         reg_s++;
-                        pilhaDados.insereDado(((int)reg_i + 1), reg_s);
+                        pilhaDados.insereDado((double)(reg_i + 1), reg_s);
                         reg_i = Integer.parseInt(instrucao[1]);
-                    }
                     break;
                     
                     case "RETURN" :
-                    {
                         reg_i = pilhaDados.lePilha(reg_s).intValue();
                         reg_s--;
-                    }
                     break;
                 }
             }
