@@ -6,6 +6,23 @@ public class PilhaDados {
     
     private ArrayList<Double> pilhaDados = new ArrayList();
     
+    private static PilhaDados instancia;
+    
+    private PilhaDados()
+    {   
+    }
+    
+    //Singleton
+    public static synchronized PilhaDados getInstance()
+    {
+        if(instancia == null)
+        {
+            instancia = new PilhaDados();
+        }
+        
+        return instancia;
+    }
+    
     public int insereDado(Double dado, int posicao)
     {
         if(pilhaDados.size() <= posicao) //Verificando se a posicao ja existe, caso sim, sobrescreve.
@@ -29,5 +46,10 @@ public class PilhaDados {
     {
         pilhaDados.remove(posicao);
         return pilhaDados.size();
-    }  
+    } 
+    
+    public ArrayList<Double> getPilha()
+    {
+        return pilhaDados;
+    }
 }

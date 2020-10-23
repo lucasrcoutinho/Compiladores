@@ -7,8 +7,8 @@ public class Maquina {
     private int reg_i = 0;  //Registrador Programa
     private int reg_s = 0;  // Registrador Dados
     
-    private PilhaDados pilhaDados = new PilhaDados();
-    private PilhaPrograma pilhaPrograma = new PilhaPrograma();
+    private PilhaDados pilhaDados = PilhaDados.getInstance();
+    private PilhaPrograma pilhaPrograma = PilhaPrograma.getInstance();
     
     public void preenchePilhaPrograma(ArrayList<String> dados)
     {
@@ -17,12 +17,13 @@ public class Maquina {
             pilhaPrograma.insereDado(linha);
         }
         
-        for(String linha : dados)
+        pilhaPrograma.insereDado(null);
+        
+        /*for(String linha : dados)
         {
             System.out.println(linha);
-        }
-    }
-    
+        }*/
+    } 
     
     public void executaInstrucoes(boolean debug, int parada)
     {
@@ -35,8 +36,9 @@ public class Maquina {
         
         String linha = pilhaPrograma.lePilha(reg_i);
         String[] instrucao = linha.split(" "); //pos 0 = instrucao, pos 1 = atriuto
+        System.out.println(instrucao[0]);
         
-        while(instrucao != null)
+        while(true)
         {
             contadorInstExecutadas++;
             
@@ -213,26 +215,26 @@ public class Maquina {
                     break;
                     
                     case "SRT" :
-                        /*n = Integer.parseInt(instrucao[1]);
+                        n = Integer.parseInt(instrucao[1]);
                         pilhaDados.insereDado(pilhaDados.lePilha(reg_s), n);
                         
-                        reg_s--;*/
+                        reg_s--;
                     break;
                     
                     case "JMP" : 
-                        //reg_i = Integer.parseInt(instrucao[1]);
+                        reg_i = Integer.parseInt(instrucao[1]);
                     break;
                     
                     case "JMPF" :
-                        /*if(pilhaDados.lePilha(reg_s) == 0){
+                        if(pilhaDados.lePilha(reg_s) == 0){
                             reg_i = Integer.parseInt(instrucao[1]);
                         }
                         else{
                             reg_i = reg_i + 1;
                         }
                         
-                        reg_s--;*/
-                    break;
+                        reg_s--;
+                   break;
                     
                     case "NULL" :
                         //nao faz nada
@@ -277,8 +279,25 @@ public class Maquina {
                 }
             }
             
+            atualizaMainFrame();
+            
+            reg_i++;           
             linha = pilhaPrograma.lePilha(reg_i);
-            instrucao = linha.split(" ");
+            if(linha == null)
+            {
+                break;
+            }
+            else
+            {
+                instrucao = linha.split(" ");
+                System.out.println(instrucao[0].toString());
+            }
         }
+    }
+    
+    private void atualizaMainFrame()
+    {
+        Facede instanciaFacede = Facede.getInstance();
+        instanciaFacede.atualizaTabelas();
     }
 }

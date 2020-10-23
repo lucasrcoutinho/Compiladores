@@ -1,29 +1,28 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Frontend;
 
 import Backend.Facede;
 import java.util.ArrayList;
 import javax.swing.JFileChooser;
 
-/**
- *
- * @author adria
- */
 public class MainFrame extends javax.swing.JFrame {
 
-    /**
-     * Creates new form MainFrame
-     */
+    private static MainFrame instancia;
+    private Facede facadeInstancia;
     
-    Facede facadeInstancia;
-    
-    public MainFrame() {
-        facadeInstancia = new Facede();
+    private MainFrame() {
+
+        facadeInstancia = Facede.getInstance();
         initComponents();
+    }
+    
+    public static MainFrame getInstance()
+    {
+        if(instancia == null)
+        {
+            instancia = new MainFrame();
+        }
+        
+        return instancia;
     }
 
     /**
@@ -41,7 +40,7 @@ public class MainFrame extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tabelaPrograma = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tebelaMemoria = new javax.swing.JTable();
+        tabelaMemoria = new javax.swing.JTable();
         debugCheckBox = new javax.swing.JCheckBox();
         botaoExecutar = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
@@ -49,6 +48,7 @@ public class MainFrame extends javax.swing.JFrame {
         saidaDados = new java.awt.TextArea();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         areaCodigo = new javax.swing.JTable();
 
@@ -81,7 +81,7 @@ public class MainFrame extends javax.swing.JFrame {
         tabelaPrograma.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(tabelaPrograma);
 
-        tebelaMemoria.setModel(new javax.swing.table.DefaultTableModel(
+        tabelaMemoria.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null}
             },
@@ -89,13 +89,18 @@ public class MainFrame extends javax.swing.JFrame {
                 "N", "Pilha Mem"
             }
         ));
-        tebelaMemoria.setEnabled(false);
-        tebelaMemoria.getTableHeader().setReorderingAllowed(false);
-        jScrollPane2.setViewportView(tebelaMemoria);
+        tabelaMemoria.setEnabled(false);
+        tabelaMemoria.getTableHeader().setReorderingAllowed(false);
+        jScrollPane2.setViewportView(tabelaMemoria);
 
         debugCheckBox.setText("Debug");
 
         botaoExecutar.setText("Executar");
+        botaoExecutar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botaoExecutarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -144,31 +149,45 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("Saída");
 
+        jButton1.setText("OK");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(entradaDados, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 89, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(saidaDados, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                    .addComponent(entradaDados, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                    .addComponent(saidaDados, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+            .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(saidaDados, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
-                    .addComponent(entradaDados, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(saidaDados, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
+                            .addComponent(entradaDados, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButton1))))
         );
 
         areaCodigo.setModel(new javax.swing.table.DefaultTableModel(
@@ -191,7 +210,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane3)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 853, Short.MAX_VALUE)
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -232,6 +251,10 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_botaoDiretorioActionPerformed
 
+    private void botaoExecutarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoExecutarActionPerformed
+        facadeInstancia.executaProg(false, 0);
+    }//GEN-LAST:event_botaoExecutarActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -267,6 +290,55 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
     }
+    
+    public void atualizaPilhas()
+    {
+        ArrayList<Double> pilhaDados = new ArrayList<>();
+        ArrayList<String> pilhaPrograma = new ArrayList<>();
+        
+        int i;
+        
+        //Obtendo as instancias ja criadas na Máquina
+        pilhaDados = facadeInstancia.obtemPilhaDados();
+        pilhaPrograma = facadeInstancia.obtemPilhaPrograma();
+        
+        //
+        //Tabela de progema
+        //
+        javax.swing.table.DefaultTableModel modeloProg = (javax.swing.table.DefaultTableModel) tabelaPrograma.getModel();
+        
+        //Limpando a tabela antes de inserir os dados
+        if(tabelaPrograma.getRowCount() > 0)
+        {
+            tabelaPrograma.removeRowSelectionInterval(0, tabelaPrograma.getRowCount() - 1);
+        }
+        
+        //Inserindo os dados
+        for(i = 0; i<pilhaPrograma.size(); i++)
+        {
+            modeloProg.addRow(new Object[]{pilhaPrograma.get(i)});
+        }
+        
+        
+        //
+        //Tabela de dados
+        //
+        javax.swing.table.DefaultTableModel modeloMem = (javax.swing.table.DefaultTableModel) tabelaMemoria.getModel();
+        
+        //Limpando a tabela antes de atualizar os dados
+        if(tabelaMemoria.getRowCount() > 0)
+        {
+            tabelaMemoria.removeRowSelectionInterval(0, tabelaMemoria.getRowCount() - 1);
+        }
+        
+        //Inserindo os dados
+        for(i = 0; i<pilhaDados.size(); i++)
+        {
+            modeloMem.addRow(new Object[]{pilhaDados.get(i)});
+        }
+        
+      
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable areaCodigo;
@@ -275,6 +347,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JCheckBox debugCheckBox;
     private javax.swing.JTextField diretorioTexto;
     private java.awt.TextArea entradaDados;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
@@ -283,7 +356,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private java.awt.TextArea saidaDados;
+    private javax.swing.JTable tabelaMemoria;
     private javax.swing.JTable tabelaPrograma;
-    private javax.swing.JTable tebelaMemoria;
     // End of variables declaration//GEN-END:variables
 }
