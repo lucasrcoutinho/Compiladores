@@ -90,19 +90,19 @@ public class AnalisadorLexico {
             }else if(caractere == '!'){
                 trataDif();
             }else{
-                System.out.println("Caractere nao reconhecido");
+                //System.out.println("Caractere nao reconhecido");
                 trataErro("Caractere nao reconhecido");
             }        
         }
-        System.out.println("Char: " + caractere);
-        System.out.println("Token: " + token.getSimbolo());
+        //System.out.println("Char: " + caractere);
+        //System.out.println("Token: " + token.getSimbolo());
         
         if (caractere == 0){//Fim do arquivo
                 token.setErro("");
                 token.setLexema("");
                 token.setSimbolo("");
                 token.setLinha(numeroDaLinha);
-                System.out.println("Fim do arquivo");
+                //System.out.println("Fim do arquivo");
                 return token;
             }
         return token;

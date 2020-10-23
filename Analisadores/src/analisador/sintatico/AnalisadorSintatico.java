@@ -18,7 +18,7 @@ public class AnalisadorSintatico {
     Token token;     
     ArrayList <Token> listaDeTokens = new ArrayList();
     int indiceToken = 0;
-    int linhaErroLexico=-1;
+    int linhaErro = -1;
     int linhaErroSintatico=-1;
     boolean erro = false;
     String mensagemErro;
@@ -29,7 +29,7 @@ public class AnalisadorSintatico {
     public void inicioSintatico(String caminho){
         erro = false;
         indiceToken = 0;
-        linhaErroSintatico = -1;
+        linhaErro = -1;
         mensagemErro = "";
         analisadorLexico = new AnalisadorLexico(caminho);
         analisadorSintatico();
@@ -134,8 +134,7 @@ public class AnalisadorSintatico {
                 }                
             }
             getToken();
-        }
-        else trataErro("Eperado palavra reservada inicio");
+        } else trataErro("Eperado palavra reservada inicio");
     }
     
     private void analisaComandoSimples(){
@@ -313,7 +312,7 @@ public class AnalisadorSintatico {
             }else trataErro("Esperado fecha parentese");
         }else if (token.getLexema() == "verdadeiro" || token.getLexema() == "falso"){
             getToken();
-        }else trataErro("Esperado verdadeiro ou falso");
+        }else trataErro("Esperado identficador, numero, parentese ou valor booleano");
     }
     
     private void analisaChamadaDeFuncao(){
@@ -331,9 +330,9 @@ public class AnalisadorSintatico {
     
     private void trataErro(String metodoChamouErro){
         if (!erro){
-            System.out.println("Erro na linha " + token.getLinha()+ " " + 
-                token.getLexema() + " " + token.getSimbolo() + " - " + metodoChamouErro);
-            linhaErroSintatico = token.getLinha();
+            //System.out.println("Erro na linha " + token.getLinha()+ " " + 
+                //token.getLexema() + " " + token.getSimbolo() + " - " + metodoChamouErro);
+            linhaErro = token.getLinha();
             mensagemErro = " - " + metodoChamouErro;
             //indiceToken = listaDeTokens.size();
             erro = true;
@@ -345,9 +344,9 @@ public class AnalisadorSintatico {
         if (erro == false){
             return("Sucesso");
         }else if (token.getErro() == ""){
-            return("Erro sintatico na linha: " + token.getLinha() + " - " + mensagemErro);
+            return("Erro sintatico na linha: " + linhaErro + mensagemErro);
         }        
-        return("Erro lexico na linha: " + token.getLinha() + " - " + token.getErro());
+        return("Erro lexico na linha: " + linhaErro + " - " + token.getErro());
     }
 }
 

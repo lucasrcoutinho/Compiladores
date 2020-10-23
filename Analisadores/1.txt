@@ -1,5 +1,5 @@
 {Teste 1}
-programa test1;
+prog@rama test1;
 
 {comentario nao reconhecido}
 var a,b,c: inteiro;

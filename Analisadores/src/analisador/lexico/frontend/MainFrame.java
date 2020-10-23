@@ -132,61 +132,44 @@ public class MainFrame extends javax.swing.JFrame {
         fileChooser.showOpenDialog(this);
         String caminho = "";
         ArrayList<String> linhas = new ArrayList<>();
+        String msg[] = new String[2];
         
         try{
             caminho = fileChooser.getSelectedFile().getAbsolutePath();
             
             linhas.clear();
             linhas = facadeInstancia.getArquivoFonte(caminho);
+            facadeInstancia.chamaSintatico(caminho);
+            CampoErro.setText(facadeInstancia.getErroSintatico());
         }
         catch(java.lang.NullPointerException e){
             System.err.printf("Caminho do arquivo nao selecionao!\n");
         }
-facadeInstancia.chamaSintatico(caminho);
-        
-        //ArrayList <Token> listaTokens = facadeInstancia.getTokens();
 
         TabelaPrint.getColumnModel().getColumn(0).setPreferredWidth(1);
-        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) TabelaPrint.getModel();   
-        
-
-
+        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) TabelaPrint.getModel(); 
         modelo.getDataVector().removeAllElements();
-        modelo.fireTableDataChanged();       
-        
-        
+        modelo.fireTableDataChanged();
         for(int i = 0; i<linhas.size() - 1; i++){
             modelo.addRow(new Object[]{i+1, linhas.get(i), linhas.get(i)});
-        }  
-                
-        CampoErro.setText(facadeInstancia.getErroSintatico());
-        String msg[] = new String[2];
+        }               
         
+                
         if (linhas.size()<=1){
             modelo.addRow(new Object[]{"", "", ""});
-        }
-        
+        }        
         try{
-            System.out.println(facadeInstancia.getErroSintatico());
-            msg = facadeInstancia.getErroSintatico().split(" -");        
-            JOptionPane.showMessageDialog(null, msg[0]);
-            msg = msg[0].split(": ");
-            TabelaPrint.setRowSelectionInterval(parseInt(msg[1])-1, parseInt(msg[1])-1);
-            TabelaPrint.setSelectionBackground(Color.red);
-        }catch(java.lang.ArrayIndexOutOfBoundsException e){
+            if (facadeInstancia.getErroSintatico() != "Sucesso"){
+                msg = facadeInstancia.getErroSintatico().split(" -");        
+                JOptionPane.showMessageDialog(null, msg[0]);
+                msg = msg[0].split(": ");
+                TabelaPrint.setRowSelectionInterval(parseInt(msg[1])-1, parseInt(msg[1])-1);
+                TabelaPrint.setSelectionBackground(Color.red);
+            }
+
+        }catch(java.lang.NullPointerException f){
             
-        }
-        //if(facadeInstancia.getErro())
-        //{
-            //CampoErro.setText("ERRO na linha " + facadeInstancia.getLinhaErro());
-        //}
-        //else{
-            //CampoErro.setText("");
-        //}
-        //AnalisadorSintatico sintatico = new AnalisadorSintatico(); 
-        //sintatico.inicioSintaitico(listaTokens);
-        
-       
+        } 
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
