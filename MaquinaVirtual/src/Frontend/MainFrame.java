@@ -48,7 +48,7 @@ public class MainFrame extends javax.swing.JFrame {
         saidaDados = new java.awt.TextArea();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        Ok_btn = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         areaCodigo = new javax.swing.JTable();
 
@@ -149,10 +149,10 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("Saída");
 
-        jButton1.setText("OK");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        Ok_btn.setText("OK");
+        Ok_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                Ok_btnActionPerformed(evt);
             }
         });
 
@@ -165,7 +165,7 @@ public class MainFrame extends javax.swing.JFrame {
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
                     .addComponent(entradaDados, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(Ok_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
@@ -187,7 +187,7 @@ public class MainFrame extends javax.swing.JFrame {
                             .addComponent(entradaDados, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton1))))
+                        .addComponent(Ok_btn))))
         );
 
         areaCodigo.setModel(new javax.swing.table.DefaultTableModel(
@@ -227,6 +227,11 @@ public class MainFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void Ok_btnActionPerformed(java.awt.event.ActionEvent evt)
+    {
+        
+    }
+    
     private void diretorioTextoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_diretorioTextoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_diretorioTextoActionPerformed
@@ -341,13 +346,13 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton Ok_btn;
     private javax.swing.JTable areaCodigo;
     private javax.swing.JButton botaoDiretorio;
     private javax.swing.JButton botaoExecutar;
     private javax.swing.JCheckBox debugCheckBox;
     private javax.swing.JTextField diretorioTexto;
     private java.awt.TextArea entradaDados;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
