@@ -7,6 +7,7 @@ package analisador.sintatico;
 import java.util.ArrayList;
 import analisador.lexico.backend.AnalisadorLexico;
 import analisador.lexico.backend.Token;
+import analisador.semantico.AnalisadorSemantico;
 
 /**
  *
@@ -15,8 +16,10 @@ import analisador.lexico.backend.Token;
 
 public class AnalisadorSintatico {    
     //AnalisadorLexico lexico = new AnalisadorLexico();
-    Token token;     
+    Token token;
+    Token novoToken;
     ArrayList <Token> listaDeTokens = new ArrayList();
+    ArrayList <Token> expressao = new ArrayList<>();
     int indiceToken = 0;
     int linhaErro = -1;
     int linhaErroSintatico=-1;
@@ -25,6 +28,7 @@ public class AnalisadorSintatico {
     String descricaoErroLexico;
     String caminhoArquivoFonte;
     AnalisadorLexico analisadorLexico;
+    AnalisadorSemantico analisadorSemantico;
     
     public void inicioSintatico(String caminho){
         erro = false;
@@ -32,6 +36,8 @@ public class AnalisadorSintatico {
         linhaErro = -1;
         mensagemErro = "";
         analisadorLexico = new AnalisadorLexico(caminho);
+        analisadorSemantico = new AnalisadorSemantico();
+        
         analisadorSintatico();
     }
 
@@ -47,6 +53,9 @@ public class AnalisadorSintatico {
         if (token.getSimbolo() == "sprograma"){
             getToken();
             if (token.getSimbolo() == "sidentificador"){
+               //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               //analisadorSemantico.
+               //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                getToken();
                 if (token.getSimbolo() == "sponto_virgula"){
                    analisaBloco();
@@ -69,7 +78,7 @@ public class AnalisadorSintatico {
     private void analisaBloco(){
         getToken();
         analisaEtVariaveis();
-        analisaSubRotina();
+        analisaSubRotina();//Aqui checa retorno de funcao na declaracao!
         analisaComandos();
     }
     
@@ -122,8 +131,15 @@ public class AnalisadorSintatico {
     private void analisaComandos(){
         if (token.getSimbolo() == "sinicio"){
             getToken();
+            //******************************************************************
+            //flagRetornoOk=false
+            //******************************************************************
             analisaComandoSimples();
             while (token.getSimbolo() != "sfim"){
+                //**************************************************************
+                //Se flagRetornoOk == true então erro   |talvez sai
+                //Encontrou codigo unreachable          |essa parte
+                //**************************************************************
                 if (token.getSimbolo() == "sponto_virgula"){
                     getToken();
                     if (token.getSimbolo() != "sfim")
@@ -133,6 +149,10 @@ public class AnalisadorSintatico {
                     return;
                 }                
             }
+            //******************************************************************
+            // Se flagRetornoOk == false então erro
+            // Não encontrou um retorno
+            //******************************************************************
             getToken();
         } else trataErro("Eperado palavra reservada inicio");
     }
@@ -140,6 +160,12 @@ public class AnalisadorSintatico {
     private void analisaComandoSimples(){
         switch(token.getSimbolo()){
             case "sidentificador":
+                //**************************************************************
+                //  O valor de retorno ou expressao tem que ter o mesmo tipo da funcao 
+                //  se token.getLexema == (getProcCorrente) 
+                //  Então analisa atribuição e 
+                //  se tiver mais codigo depois = erro
+                //**************************************************************
                 analisaAtribChProcedimento();
                 break;
             case "sse":
@@ -159,14 +185,28 @@ public class AnalisadorSintatico {
         }
     }
     
-    private void analisaAtribChProcedimento(){
+    private void analisaAtribChProcedimento(){//Momento de utilizacao (consultas na tabela)
+        //Salva token anterior antes de pegar o proximo
         getToken();
         if (token.getSimbolo() == "satribuicao"){
-            analisaAtribuicao();
-        }else chamadaProcedimento();
+            //Verificar se o token anterior eh variavel
+            
+            //******************************************************************
+            //com o retorno de funcao ativado
+            //Verificar se o token anterior eh funcao
+            //******************************************************************
+            analisaAtribuicao(/*token anterior*/);
+        }else{
+            //******************************************************************
+            //com o retorno de funcao ativado
+            //Se entrou aqui nao teve atribuicao, erro samantico.
+            //******************************************************************
+            //Verificar se o token anterior eh procedimento
+            chamadaProcedimento(/*token anterior*/);
+        } 
     }
     
-    private void analisaLeia(){
+    private void analisaLeia(){//So pode ler inteiros
         getToken();
         if (token.getSimbolo() == "sabre_parenteses"){
             getToken();
@@ -194,24 +234,41 @@ public class AnalisadorSintatico {
     
     private void analisaEnquanto(){
         getToken();
-        analisaExpressao();
+        //----------------------------------------------------------------------
+        analisaExpressaoRetorno();//retorno
+        //----------------------------------------------------------------------
         if (token.getSimbolo() == "sfaca"){       
             getToken();
             analisaComandoSimples();
+            //**************************************************************
+            //flagRetornoOk=false
+            //Retorno aqui nao eh garantido
+            //**************************************************************
         }else trataErro("Esperado palavra reservada faca"); 
     }     
     
     private void analisaSe(){
         getToken();
-        analisaExpressao();
+        //----------------------------------------------------------------------
+        analisaExpressaoRetorno();//retorno 
+        //----------------------------------------------------------------------
         if (token.getSimbolo() == "sentao"){
             getToken();
             analisaComandoSimples();
+            //******************************************************************
+            //backupflagRetornoOk = flagRetornoOk
+            //flagRetornoOk = false
+            //******************************************************************
             if (token.getSimbolo() == "ssenao"){
                 getToken();
                 analisaComandoSimples();
             }
-        }else trataErro("Esperado palavra reservada entao"); 
+        }else trataErro("Esperado palavra reservada entao");
+        //**********************************************************************
+        //se backupflagRetornoOk ou flagRetornoOk != true entao
+        //flagRetornoOk == false
+        //senao flagRetornoOk == true
+        //**********************************************************************
     }
     
     private void analisaSubRotina(){
@@ -244,7 +301,7 @@ public class AnalisadorSintatico {
         }else trataErro("Esparado identificado");
     }
     
-    private void analisaDeclaracaoFuncao(){
+    private void analisaDeclaracaoFuncao(){//BO*********************************
         getToken();
         if (token.getSimbolo() == "sidentificador"){
             getToken();
@@ -253,12 +310,29 @@ public class AnalisadorSintatico {
                 if (token.getSimbolo() == "sinteiro" || token.getSimbolo() == "sbooleano"){
                     getToken();
                     if (token.getSimbolo() == "sponto_virgula"){
+                        //******************************************************
+                        //Liga verificação de retorno(verificaRetorno = true)
                         analisaBloco();
+                        //Desliga a verificação de retorno(verificaRetorno = false)
+                        //******************************************************
                     }
                 }else trataErro("Esperado inteiro ou booleano");  
             }else trataErro("Esperado doispontos");  
         }else trataErro("Esperado identifacador");  
     }
+    
+    //----------------------------------------------------------------------
+    private int analisaExpressaoRetorno(){
+        expressao.clear();        
+        analisaExpressao();
+        ArrayList<String> exprecaoPosFixa =  new ArrayList();
+        //exprecaoPosFixa = analisadorSemantico.convertePosFixa(expressao);
+        System.out.print("Expressao original: ");
+        imprimeExpressao(expressao);
+        analisadorSemantico.convertePosFixa(expressao);       
+        return 1; //analisadorSemantico.compatibilizacaoTipos(exprecaoPosFixa);//Retorna o tipo da expressao -1-erro 0-Bool 1-int     
+    }
+    //----------------------------------------------------------------------
     
     private void analisaExpressao(){
         analisaExpressaoSimples();
@@ -267,20 +341,30 @@ public class AnalisadorSintatico {
                 token.getSimbolo() == "sig" ||
                 token.getSimbolo() == "smenor" ||
                 token.getSimbolo() == "smenorig" ||
-                token.getSimbolo() == "sdif"){   
+                token.getSimbolo() == "sdif"){
+            //------------------------------------------------------------------
+            expressao.add(new Token(token.getSimbolo(), token.getLexema(), 0));
+            //------------------------------------------------------------------
             getToken();
             analisaExpressaoSimples();
-        }
+        }        
+        //O retorno do analisaExpressao nao pode ser aqui!
     }
     
     private void analisaExpressaoSimples(){
         if (token.getSimbolo() == "smais" || token.getSimbolo() == "smenos"){
+            //------------------------------------------------------------------
+            expressao.add(new Token(token.getSimbolo(), token.getLexema(), 0));
+            //------------------------------------------------------------------
             getToken();
         }
         analisaTermo();
         while (token.getSimbolo() == "smais" || 
                 token.getSimbolo() == "smenos" ||
                 token.getSimbolo() == "sou"){
+            //------------------------------------------------------------------
+            expressao.add(new Token(token.getSimbolo(), token.getLexema(), 0));
+            //------------------------------------------------------------------
             getToken();
             analisaTermo();
         }
@@ -291,12 +375,18 @@ public class AnalisadorSintatico {
         while(token.getSimbolo() == "smult" ||
                 token.getSimbolo() == "sdiv" ||
                 token.getSimbolo() == "se"){
+            //------------------------------------------------------------------
+            expressao.add(new Token(token.getSimbolo(), token.getLexema(), 0));
+            //------------------------------------------------------------------
             getToken();
             analisaFator();
         }        
     }
     
     private void analisaFator(){
+        //----------------------------------------------------------------------
+        expressao.add(new Token(token.getSimbolo(), token.getLexema(), 0));
+        //----------------------------------------------------------------------
         if (token.getSimbolo() == "sidentificador"){
             analisaChamadaDeFuncao();
         }else if (token.getSimbolo() == "snumero"){
@@ -308,6 +398,9 @@ public class AnalisadorSintatico {
             getToken();
             analisaExpressao();
             if (token.getSimbolo() == "sfecha_parenteses"){
+                //--------------------------------------------------------------
+                expressao.add(new Token(token.getSimbolo(), token.getLexema(), 0));
+                //--------------------------------------------------------------
                 getToken();
             }else trataErro("Esperado fecha parentese");
         }else if (token.getLexema() == "verdadeiro" || token.getLexema() == "falso"){
@@ -319,13 +412,19 @@ public class AnalisadorSintatico {
         getToken();
     }
     
-    private void chamadaProcedimento(){
-        //getToken();
+    private void chamadaProcedimento(){  
+        //Verifcar se identificador eh do tipo procedimento
+        
+        
+        //????getToken();
+        //????Verificar se atribuição 
     }
     
+    
+    //b:= a*a+(c div b) exemplo de atribuição
     private void analisaAtribuicao(){
         getToken();
-        analisaExpressao();
+        analisaExpressaoRetorno();//Retorno    
     }  
     
     private void trataErro(String metodoChamouErro){
@@ -347,6 +446,15 @@ public class AnalisadorSintatico {
             return("Erro sintatico na linha: " + linhaErro + mensagemErro);
         }        
         return("Erro lexico na linha: " + linhaErro + " - " + token.getErro());
+    }
+    
+    
+    private void imprimeExpressao(ArrayList<Token> expressao){//Metodo temporario
+
+        for(int i = 0; i< expressao.size(); i++){
+            System.out.print(expressao.get(i).getSimbolo());
+        }
+        System.out.println("");
     }
 }
 

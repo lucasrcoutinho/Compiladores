@@ -16,7 +16,7 @@ public class Token {
     private int linha;
     
 
-    Token(String lexemaIn, String simboloIn, int linhaIn){
+    public Token(String lexemaIn, String simboloIn, int linhaIn){
         lexema = lexemaIn;
         simbolo = simboloIn;
         linha = linhaIn;       
