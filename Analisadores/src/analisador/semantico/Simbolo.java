@@ -12,7 +12,7 @@ package analisador.semantico;
 public class Simbolo {
     private String lexema;
     private String tipoLexema;//nome de programa, variável, procedimento, função inteiro, função boolean.    
-    private int nivelEscopo;    
+    private String nivelEscopo;    
     private int memoria;
     private String tipo;//inteiro, booleano.
     private boolean procedimentoCorrente;
@@ -23,12 +23,12 @@ public class Simbolo {
         tipoLexema = "";
         tipo = "";
         procedimentoCorrente = false;      
-        nivelEscopo = -1;    
+        nivelEscopo = "";    
         memoria = -1;
     }
     //Insere_tabela(token.lexema,”procedimento”,nível, rótulo)
     
-    public void addInfo(String lex, String tipoLex, int nivel, int rotulo){
+    public void addInfo(String lex, String tipoLex, String nivel, int rotulo){
         lexema = lex;
         tipoLexema = tipoLex;
         nivelEscopo = nivel; 
@@ -42,7 +42,7 @@ public class Simbolo {
         tipoLexema = tipoLex;
     } 
     
-    public void setNivelEscopo(int nivelEsc){
+    public void setNivelEscopo(String nivelEsc){
         nivelEscopo = nivelEsc;
     }
     
@@ -69,7 +69,7 @@ public class Simbolo {
         return tipoLexema;
     }
    
-    public int getNivelEscopo(){
+    public String getNivelEscopo(){
         return nivelEscopo;
     }
     

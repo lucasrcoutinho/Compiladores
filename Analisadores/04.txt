@@ -1,33 +1,40 @@
 {Teste sem variaveis }
 programa test1;
+var a, b, c, u, x, z: inteiro;
+       d: booleano;
 
 
 {proc 1}
 procedimento analisa1;
-var a, x: inteiro;
-       z: booleano;
+var a, b, c: inteiro;
+       d: booleano;
 inicio
   se x>1  entao
       x:= 0;
-  leia(z) ;
+  leia(b) ;
   enquanto (a != 89) e (a<= 1000)  {condicao de parada}
   faca inicio
            a:= x+z
        fim;
-  escreva(a)
+  escreva(b)
 fim;
 
-
-procedimento analisa2;
+funcao f1:booleano;
 inicio
   leia(a);
   b:= (a+b+c)*d
 fim;
 
+procedimento analisa2;
 inicio
+  leia(a);
+fim;
+
+inicio
+    f1;
     analisa1;
     analisa2;
-    se b > (u+ c*a)
+    se f1 > (u+ c*a)
     entao escreva(b)
     senao escreva(c)
 fim.

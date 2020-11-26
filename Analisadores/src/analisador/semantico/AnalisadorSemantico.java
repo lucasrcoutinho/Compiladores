@@ -27,29 +27,29 @@ public class AnalisadorSemantico {
 
     public void imprimeTabelaSimbolos(){
         for(int i = 0; i < tabelaDeSimbolos.size(); i++){
-            for(int cont = 0; cont < tabelaDeSimbolos.get(i).getNivelEscopo(); cont++){
-                System.out.print("\t");
-            }
+            //for(int cont = 0; cont < tabelaDeSimbolos.get(i).getNivelEscopo(); cont++){
+            //    System.out.print("\t");
+            //}
             System.out.print("Nome: " + tabelaDeSimbolos.get(i).getLexema());
             System.out.print("| Tipo: " + tabelaDeSimbolos.get(i).getTipoLexema());
             System.out.print("| Nivel: " + tabelaDeSimbolos.get(i).getNivelEscopo());
             if(tabelaDeSimbolos.get(i).getTipo() != ""){
                 System.out.print("| Tipo: " + tabelaDeSimbolos.get(i).getTipo());
             }
-            if(tabelaDeSimbolos.get(i).getProcedimentoCorrente() == true){
-                System.out.println(" *");
-            }else
-                System.out.println("");
+            //if(tabelaDeSimbolos.get(i).getProcedimentoCorrente() == true){
+            //    System.out.println(" *");
+            //}else
+            System.out.println("");
         }
     
     }
     
-    public void insere_var_tabela(String lexema, String tipoLexema,int nivel, int rotulo){
+    public void insere_tabela(String lexema, String tipoLexema,String nivel, int rotulo){
         SimboloVariavel var = new SimboloVariavel();
         var.addInfo(lexema, tipoLexema, nivel, rotulo);
         tabelaDeSimbolos.add(var);
     }
-    
+    /*
     public void insere_SubRotina_tabela(String lexema, String tipoLexema,int nivel, int rotulo){
         Simbolo subRotina = new Simbolo();
         subRotina.addInfo(lexema, tipoLexema, nivel, rotulo);
@@ -58,21 +58,28 @@ public class AnalisadorSemantico {
         tabelaDeSimbolos.add(subRotina);
     }
     
+    
     public void coloca_tipo_funcao(String lexemaTipoFuncao){
         int i = tabelaDeSimbolos.size()-1; 
         tabelaDeSimbolos.get(i).setTipo(lexemaTipoFuncao);
     }
+    */
     
-    public void coloca_tipo_variavel(String lexemaTipoVar){  
-        int i = tabelaDeSimbolos.size()-1;       
+    public void coloca_tipo(String lexemaTipoVar){  
+        int i = tabelaDeSimbolos.size()-1;
         
-        while(!tabelaDeSimbolos.get(i).getProcedimentoCorrente() && 
-               tabelaDeSimbolos.get(i).getTipo() == "" ){
+        if(tabelaDeSimbolos.get(i).getNivelEscopo() == "L" &&
+           tabelaDeSimbolos.get(i).getTipo() == ""){
+            tabelaDeSimbolos.get(i).setTipo(lexemaTipoVar);
+        }else 
+        while(i > 0 && tabelaDeSimbolos.get(i).getNivelEscopo() == "" && 
+                       tabelaDeSimbolos.get(i).getTipo() == ""){
             tabelaDeSimbolos.get(i).setTipo(lexemaTipoVar);
             i--;
         }          
     }
     
+    /*
     private void desmarcaProcCorrente(){
         if(tabelaDeSimbolos.size() == 0) return;
         int i = tabelaDeSimbolos.size()-1;        
@@ -80,7 +87,8 @@ public class AnalisadorSemantico {
             i--;
         }
         tabelaDeSimbolos.get(i).setProcedimentoCorrente(false);
-    }    
+    }
+
     private void marcaProcAnterior(){    
         int i = tabelaDeSimbolos.size()-1;
         
@@ -89,7 +97,7 @@ public class AnalisadorSemantico {
             i--;
         }
         tabelaDeSimbolos.get(i).setProcedimentoCorrente(true);
-    }
+    }*/
     
     //Metodo Remove (recolhe nivel) da tabela de simbolos
     //#################Problema quando desempilhar e tiver um proc ou fuc desempilhado#############################
@@ -97,14 +105,12 @@ public class AnalisadorSemantico {
     public void desempilha(){       
         int i = tabelaDeSimbolos.size()-1;
         
-        while(!tabelaDeSimbolos.get(i).getProcedimentoCorrente() && i > 0){
+        while(tabelaDeSimbolos.get(i).getNivelEscopo() != "L" && i > 0){
             tabelaDeSimbolos.remove(i);
             i--;
         }
         if (tabelaDeSimbolos.get(i).getTipoLexema() != "tipoPrograma"){
-            desmarcaProcCorrente();
-            marcaProcAnterior();//##############Problema ta aqui
-                                //# possivel solucao eh checar o nivel
+            tabelaDeSimbolos.get(i).setNivelEscopo("");
         }
     }
     
@@ -117,16 +123,19 @@ public class AnalisadorSemantico {
         //Nao pode haver nenhum tipo de duplicidade     
         
         int i = tabelaDeSimbolos.size()-1;
-        int nivelAtual = tabelaDeSimbolos.get(i).getNivelEscopo();
+        boolean nivelAtual = true;
         
-        while(i >= 0){
-            if (nivelAtual == tabelaDeSimbolos.get(i).getNivelEscopo()){//Se estiver no mesmo nivel
-                if (lexema == tabelaDeSimbolos.get(i).getLexema()){//E encontrou duplicidade
+        while(i >= 0){      
+            if (nivelAtual == true){//Se estiver no mesmo nivel
+                if(tabelaDeSimbolos.get(i).getNivelEscopo() == "L"){
+                    nivelAtual = false;
+                }
+                if(lexema.equals(tabelaDeSimbolos.get(i).getLexema())){//E encontrou duplicidade
                     return true;
                 }
             }else{//Esta em outro nivel
                 if(tabelaDeSimbolos.get(i).getTipoLexema() != "tipoVariavel"){//Não compara mais com variaveis
-                    if (lexema == tabelaDeSimbolos.get(i).getLexema()){//E encontrou duplicidade
+                    if(lexema == tabelaDeSimbolos.get(i).getLexema()){//E encontrou duplicidade
                         return true;
                     }
                 }
@@ -139,7 +148,7 @@ public class AnalisadorSemantico {
     public boolean pesquisa_declvar_tabela(String lexema){
         int i = tabelaDeSimbolos.size()-1;
         while(i >= 0){
-            if (lexema == tabelaDeSimbolos.get(i).getLexema() &&
+            if ((lexema.equals(tabelaDeSimbolos.get(i).getLexema())) &&
                 tabelaDeSimbolos.get(i).getTipoLexema() == "tipoVariavel"){//E encontrou duplicidade
                 return true;
             }
@@ -151,9 +160,9 @@ public class AnalisadorSemantico {
     public boolean pesquisa_declvarfunc_tabela(String lexema){
         int i = tabelaDeSimbolos.size()-1;
         while(i >= 0){
-            if (lexema == tabelaDeSimbolos.get(i).getLexema() &&
-                (tabelaDeSimbolos.get(i).getTipoLexema() == "tipoFuncao")||
-                 tabelaDeSimbolos.get(i).getTipoLexema() == "tipoVariavel"){
+            if (lexema.equals(tabelaDeSimbolos.get(i).getLexema()) &&
+                (tabelaDeSimbolos.get(i).getTipoLexema() == "tipoFuncao" ||
+                 tabelaDeSimbolos.get(i).getTipoLexema() == "tipoVariavel" )){
                 return true;
             }
             i--;
@@ -164,7 +173,7 @@ public class AnalisadorSemantico {
     public boolean pesquisa_declproc_tabela(String lexema){//Verifica duplicidade de procedimento
         int i = tabelaDeSimbolos.size()-1;
         while(i >= 0){
-            if (lexema == tabelaDeSimbolos.get(i).getLexema() &&
+            if (lexema.equals(tabelaDeSimbolos.get(i).getLexema()) &&
                 tabelaDeSimbolos.get(i).getTipoLexema() == "tipoProcedimento"){
                 return true;
             }
@@ -176,7 +185,7 @@ public class AnalisadorSemantico {
     public boolean pesquisa_declfunc_tabela(String lexema){//Verifica duplicidade de funcao
         int i = tabelaDeSimbolos.size()-1;
         while(i >= 0){
-            if (lexema == tabelaDeSimbolos.get(i).getLexema() &&
+            if (lexema.equals(tabelaDeSimbolos.get(i).getLexema()) &&
                 tabelaDeSimbolos.get(i).getTipoLexema() == "tipoFuncao"){
                 return true;
             }
@@ -185,10 +194,28 @@ public class AnalisadorSemantico {
         return false;
     }
     
-    public boolean pesquisa_tabela(String lexema,int nível,int ind){
-        //Usado no analisa fator buscando o nome da variavel ou função
-        //em seguida verifica se é função(implementar separado)
-        return true;
+    public boolean pesquisa_tabela(String lexema){
+        int i = tabelaDeSimbolos.size()-1;
+        while(i >= 0){
+            if (lexema.equals(tabelaDeSimbolos.get(i).getLexema())){
+                return true;
+            }
+            i--;
+        } 
+        return false;
+    }
+    
+    public String buscaTipoFuncao(String lexema){
+        int i = tabelaDeSimbolos.size()-1;
+
+        while(i >= 0){
+            if (lexema.equals(tabelaDeSimbolos.get(i).getLexema()) &&
+                "tipoFuncao".equals(tabelaDeSimbolos.get(i).getTipoLexema())){
+                return tabelaDeSimbolos.get(i).getTipo();
+            }
+            i--;
+        }
+        return "";
     }
 
     public int compatibilizacaoTipos(ArrayList expressaoPosFixa){
@@ -205,8 +232,7 @@ public class AnalisadorSemantico {
         
         
         ArrayList<Integer> expressaoTipos = new ArrayList();
-        expressaoTipos = geraTabelaDeTipos(expressaoPosFixa);
-        
+        expressaoTipos = geraTabelaDeTipos(expressaoPosFixa);        
         
 
         expressaoTipos.add(1);

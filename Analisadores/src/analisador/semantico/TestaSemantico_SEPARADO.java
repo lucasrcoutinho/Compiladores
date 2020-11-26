@@ -27,27 +27,28 @@ public class TestaSemantico_SEPARADO {
     
     public void iniciaTeste(){
 
-        s.insere_SubRotina_tabela("Teste1", "tipoPrograma", 0, 0);        
-        s.insere_var_tabela("Varia1", "tipoVariavel", 0, 0);
-        s.insere_var_tabela("Varia2", "tipoVariavel", 0, 0);
-        s.insere_var_tabela("Varia3", "tipoVariavel", 0, 0);
-        s.coloca_tipo_variavel("inteiro");//Confirmar se está verificando o idenficador de tipo
-        s.insere_var_tabela("Varia4", "tipoVariavel", 0, 0);
-        s.insere_var_tabela("Varia5", "tipoVariavel", 0, 0);
-        s.coloca_tipo_variavel("booleano");
-        //s.desempilha();
+        s.insere_tabela("Teste1", "tipoPrograma", "L", 0);        
+        s.insere_tabela("Varia1", "tipoVariavel", "", 0);
+        s.insere_tabela("Varia2", "tipoVariavel", "", 0);
+        s.insere_tabela("Varia3", "tipoVariavel", "", 0);
+        s.coloca_tipo("inteiro");//Confirmar se está verificando o idenficador de tipo
+        s.insere_tabela("Varia4", "tipoVariavel", "", 0);
+        s.insere_tabela("Varia5", "tipoVariavel", "", 0);
+        s.coloca_tipo("booleano");
+        s.desempilha();
         //s.imprimeTabelaSimbolos();
         
-        s.insere_SubRotina_tabela("Teste2", "tipoFuncao", 1, 0);
-        s.coloca_tipo_funcao("booleano");
-        s.insere_var_tabela("Varia6", "tipoVariavel", 1, 0);
-        s.insere_var_tabela("Varia7", "tipoVariavel", 1, 0);
-        if (s.pesquisa_duplicvar_tabela("Varia3"))
+        s.insere_tabela("Teste2", "tipoFuncao", "L", 0);
+        s.coloca_tipo("booleano");
+        s.insere_tabela("Varia6", "tipoVariavel", "", 0);
+        s.insere_tabela("Varia7", "tipoVariavel", "", 0);
+        if (s.pesquisa_duplicvar_tabela("Teste2"))
             System.out.println("*****Variavel Duplicada********");
-        s.coloca_tipo_variavel("booleano");
-        //s.desempilha();
-        s.imprimeTabelaSimbolos();
-        s.insere_SubRotina_tabela("Teste3", "tipoProcedim", 2, 0);
+        s.coloca_tipo("booleano");
+        s.desempilha();
         //s.imprimeTabelaSimbolos();
+        s.insere_tabela("Teste3", "tipoProcedim", "L", 0);
+        s.desempilha();
+        s.imprimeTabelaSimbolos();
     }
 }

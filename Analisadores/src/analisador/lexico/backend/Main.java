@@ -18,9 +18,9 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        //new MainFrame().setVisible(true);
-        TestaSemantico_SEPARADO s = new TestaSemantico_SEPARADO();
-        s.iniciaTeste();//Inicia teste da tabela de simbolos
+        new MainFrame().setVisible(true);
+        //TestaSemantico_SEPARADO s = new TestaSemantico_SEPARADO();
+        //s.iniciaTeste();//Inicia teste da tabela de simbolos
         //s.chamaCompatibiliza();//Inicia Teste de compatibilizacao
         //s.iniciaTeste();        
     }
