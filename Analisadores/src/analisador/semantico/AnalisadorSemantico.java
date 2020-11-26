@@ -228,10 +228,9 @@ public class AnalisadorSemantico {
         int uAritmetico = 3;//Converter para constante
         int negacao = 2;//Converter para constante
         int inteiro = 1;//Converter para constante
-        int booleano = 0;//Converter para constante
+        int booleano = 0;//Converter para constante       
         
-        
-        ArrayList<Integer> expressaoTipos = new ArrayList();
+        ArrayList<Integer> expressaoTipos = new ArrayList();//Necessario ArrayList para deletar elemento
         expressaoTipos = geraTabelaDeTipos(expressaoPosFixa);        
         
 
@@ -314,10 +313,40 @@ public class AnalisadorSemantico {
         return -1;
     }
     
-    private ArrayList geraTabelaDeTipos(ArrayList expressaoPosFixa){
-        ArrayList<Integer> tabelaDeTipos = new ArrayList();
+    //ab+c+d*12*+
+    private ArrayList geraTabelaDeTipos(ArrayList<String> expressaoPosFixa){
+        int i=0;
+        int index;
+        String t;
+        ArrayList<Integer> tabelaDeTipos = new ArrayList();        
         
-    
+        while(i<expressaoPosFixa.size()-1){            
+            System.out.println("expressaoPosFixa.get(i): " + expressaoPosFixa.get(i));
+            t = expressaoPosFixa.get(i);
+            if("+".equals(t) || "-".equals(t) || "*".equals(t) || "div".equals(t)){
+                tabelaDeTipos.add(6);
+            }else if(">".equals(t) || "<".equals(t) || ">=".equals(t) || "<=".equals(t)){
+                tabelaDeTipos.add(5);
+            }else if("=".equals(t) || "!=".equals(t)){
+                tabelaDeTipos.add(4);
+            }else if("+ ".equals(t) || "- ".equals(t)){//Unarios
+                tabelaDeTipos.add(3);
+            }else if("not".equals(t)){
+                tabelaDeTipos.add(2);
+            }else{
+                //imprimeTabelaSimbolos();
+                index = tabelaDeSimbolos.indexOf(expressaoPosFixa.get(i));
+                System.out.println("index"+ index);
+                if(tabelaDeSimbolos.get(index).getTipo() == "inteiro"){
+                    tabelaDeTipos.add(1);
+                }else if(tabelaDeSimbolos.get(index).getTipo() == "booleano"){
+                    tabelaDeTipos.add(0);
+                }else{//Eh pra ter sobrado apenas numero
+                    tabelaDeTipos.add(1);
+                }          
+            }
+            i++;          
+        }
         return tabelaDeTipos;
     }
     
@@ -343,46 +372,48 @@ public class AnalisadorSemantico {
         //!!!!!!!!!!!VERIFICAR UNARIO DEPOIS DE PARENTESES!!!!!!!!!!!!!!!!!!!!!!
         ArrayList<String> expressaoPosFixa =  new ArrayList();  
         Stack<OperadorPrecedecia> pilha = new Stack();
-        String simboloTemp;
+        String lexeamaTemp;
+        boolean podeOperadorUnario = true;//Proximo operador pode ser unario
         int valorPrecedencia = 0;
         
         while(expressao.size()>0){
-            simboloTemp = expressao.get(0).getLexema();
+            lexeamaTemp = expressao.get(0).getLexema();
             
-            if(simboloTemp == "snumero" || 
-               simboloTemp == "sidentificador"){
+            if(lexeamaTemp == "snumero" || 
+               lexeamaTemp == "sidentificador"){
                expressaoPosFixa.add(expressao.get(0).getSimbolo());
                //Tem que buscar o tipo na tabela de simbolos
                expressao.remove(0);
+               podeOperadorUnario = false;
                continue;
-            }else if(simboloTemp == "sou"){
+            }else if(lexeamaTemp == "sou"){
                 valorPrecedencia = 1;
-            }else if(simboloTemp == "se"){
+            }else if(lexeamaTemp == "se"){//And!
                 valorPrecedencia = 2;
-            }else if(simboloTemp == "sig" ||
-                     simboloTemp == "sdif"){
+            }else if(lexeamaTemp == "sig" ||
+                     lexeamaTemp == "sdif"){
                 valorPrecedencia = 3;
-            }else if (simboloTemp == "smaior" ||
-                      simboloTemp == "smaiorig" ||                      
-                      simboloTemp == "smenor" ||
-                      simboloTemp == "smenorig"){
-                valorPrecedencia = 4;                            
-            }else if(simboloTemp == "smenos" ||
-                     simboloTemp == "smais"){
-                if(expressaoPosFixa.size() == 0 || (pilha.size()>0 &&
-                        pilha.lastElement().operador == "(")){
+            }else if (lexeamaTemp == "smaior" ||
+                      lexeamaTemp == "smaiorig" ||                      
+                      lexeamaTemp == "smenor" ||
+                      lexeamaTemp == "smenorig"){
+                valorPrecedencia = 4;
+            }else if(lexeamaTemp == "smenos" ||
+                     lexeamaTemp == "smais"){
+                if(podeOperadorUnario){
                     valorPrecedencia = 7;//Unario
+                    expressao.get(0).setSimbolo(expressao.get(0).getSimbolo() + " ");
                 }else{
                     valorPrecedencia = 5;
                 }
-            }else if(simboloTemp == "smult" ||
-                     simboloTemp == "sdiv"){
+            }else if(lexeamaTemp == "smult" ||
+                     lexeamaTemp == "sdiv"){
                 valorPrecedencia = 6;
-            }else if(simboloTemp == "snao" ){
+            }else if(lexeamaTemp == "snao" ){
                 valorPrecedencia = 7;
-            }else if(simboloTemp == "sabre_parenteses"){
+            }else if(lexeamaTemp == "sabre_parenteses"){                
                 valorPrecedencia = 8;//sempre insere na pilha
-            }else if(simboloTemp == "sfecha_parenteses"){
+            }else if(lexeamaTemp == "sfecha_parenteses"){
                 if (pilha.size() > 0){
                     while (pilha.lastElement().operador != "("){
                         expressaoPosFixa.add(pilha.pop().operador);
@@ -401,6 +432,12 @@ public class AnalisadorSemantico {
             }
             pilha.add(new OperadorPrecedecia(valorPrecedencia, expressao.get(0).getSimbolo()));
             expressao.remove(0);
+            
+            if(valorPrecedencia == 8 || valorPrecedencia == 4){
+                podeOperadorUnario = true;
+            }else{
+                podeOperadorUnario = false;
+            }            
         }
         
         while(expressao.size()==0 && pilha.size()>0){

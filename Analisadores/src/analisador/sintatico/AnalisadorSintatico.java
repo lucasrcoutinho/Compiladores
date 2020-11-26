@@ -381,10 +381,11 @@ public class AnalisadorSintatico {
         expressao.clear();        
         analisaExpressao();
         ArrayList<String> exprecaoPosFixa =  new ArrayList();
-        //exprecaoPosFixa = analisadorSemantico.convertePosFixa(expressao);
+        exprecaoPosFixa = analisadorSemantico.convertePosFixa(expressao);
         //System.out.print("Expressao original: ");
         //imprimeExpressao(expressao);
         //analisadorSemantico.convertePosFixa(expressao);       
+        //analisadorSemantico.compatibilizacaoTipos(exprecaoPosFixa);
         return 1; //analisadorSemantico.compatibilizacaoTipos(exprecaoPosFixa);//Retorna o tipo da expressao -1-erro 0-Bool 1-int     
     }
     //--------------------------------------------------------------------------
