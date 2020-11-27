@@ -66,7 +66,7 @@ public class AnalisadorSintatico {
                        if ("".equals(token.getSimbolo())){//Confirmar esta opcao
                            //System.out.println("Sucesso");
                            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                           analisadorSemantico.imprimeTabelaSimbolos();
+                           //analisadorSemantico.imprimeTabelaSimbolos();
                            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                        }else trataErro("Caracteres apos fim do programa");  
                    }else {
@@ -202,7 +202,8 @@ public class AnalisadorSintatico {
     
     private void analisaAtribChProcedimento(){//Momento de utilizacao (consultas na tabela)
         //Salva token anterior antes de pegar o proximo
-        getToken();
+        Token bkpToken = new Token(token.getLexema(), token.getSimbolo(), 0); 
+        getToken();        
         if ("satribuicao".equals(token.getSimbolo())){
             //Verificar se o token anterior eh variavel
             
@@ -210,7 +211,7 @@ public class AnalisadorSintatico {
             //com o retorno de funcao ativado
             //Verificar se o token anterior eh funcao
             //******************************************************************
-            analisaAtribuicao(/*token anterior*/);
+            analisaAtribuicao(bkpToken);
         }else{
             //******************************************************************
             //com o retorno de funcao ativado
@@ -379,14 +380,19 @@ public class AnalisadorSintatico {
     //Aqui gera a expressao pos fixa e faz a compatibilizacao de tipos
     private int analisaExpressaoRetorno(){
         expressao.clear();        
-        analisaExpressao();
+        analisaExpressao();//Gera a expressao original
         ArrayList<String> exprecaoPosFixa =  new ArrayList();
+        System.out.println("Expressao original: ");
+        imprimeExpressao(expressao);
         exprecaoPosFixa = analisadorSemantico.convertePosFixa(expressao);
-        //System.out.print("Expressao original: ");
-        //imprimeExpressao(expressao);
+
         //analisadorSemantico.convertePosFixa(expressao);       
-        //analisadorSemantico.compatibilizacaoTipos(exprecaoPosFixa);
-        return 1; //analisadorSemantico.compatibilizacaoTipos(exprecaoPosFixa);//Retorna o tipo da expressao -1-erro 0-Bool 1-int     
+        if(analisadorSemantico.compatibilizacaoTipos(exprecaoPosFixa)<0){
+            System.out.println("Tipos diferentes na expressao"); 
+        }else{
+            System.out.println("Expressao OK");
+        }
+        return analisadorSemantico.compatibilizacaoTipos(exprecaoPosFixa);//Retorna o tipo da expressao -1-erro 0-Bool 1-int     
     }
     //--------------------------------------------------------------------------
     
@@ -440,15 +446,17 @@ public class AnalisadorSintatico {
     }
     
     private void analisaFator(){
+        int indice;
         //----------------------------------------------------------------------
         expressao.add(new Token(token.getSimbolo(), token.getLexema(), 0));
         //----------------------------------------------------------------------
         if ("sidentificador".equals(token.getSimbolo())){
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if(analisadorSemantico.pesquisa_tabela(token.getLexema())){
+            indice = analisadorSemantico.pesquisa_tabela(token.getLexema());
+            if(indice >= 0){
                 //System.out.println("analisadorSemantico.buscaTipoFuncao(token.getLexema() " + analisadorSemantico.buscaTipoFuncao(token.getLexema()));
-                if(analisadorSemantico.buscaTipoFuncao(token.getLexema()) == "booleano" ||
-                   analisadorSemantico.buscaTipoFuncao(token.getLexema()) == "inteiro"){
+                if(analisadorSemantico.buscaTipoFuncao(indice) == "booleano" ||
+                   analisadorSemantico.buscaTipoFuncao(indice) == "inteiro"){
                    analisaChamadaDeFuncao();
                 }else{
                     getToken(); 
@@ -479,7 +487,7 @@ public class AnalisadorSintatico {
     }
     
     private void analisaChamadaDeFuncao(){
-        System.out.println("Entrou no analisaChamadaDeFuncao");
+        //System.out.println("Entrou no analisaChamadaDeFuncao");
         getToken();
     }
     
@@ -493,9 +501,39 @@ public class AnalisadorSintatico {
     
     
     //b:= a*a+(c div b) exemplo de atribuição
-    private void analisaAtribuicao(){
+    private void analisaAtribuicao(Token tokenAnterior){
         getToken();
-        analisaExpressaoRetorno();//Retorno    
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        int indice;
+        String tipo;
+        int compararTipoRetorno = -1;
+        int retorno;
+        
+        System.out.println("*****************" + tokenAnterior.getLexema());   
+        
+        indice = analisadorSemantico.pesquisa_tabela(tokenAnterior.getLexema());
+        System.out.println("******************Indice: " + indice);
+        if(indice >= 0){
+            tipo = analisadorSemantico.buscaTipoFuncao(indice);
+            if("inteiro".equals(tipo)){
+                compararTipoRetorno = 1;
+            }else if("booleano".equals(tipo)){
+                compararTipoRetorno = 0;
+            }else{
+                trataErro("Variavel de atribuicao nao eh int ou bool");
+            }
+        }else{
+            trataErro("Variavel nao declrada");
+        }
+        
+        retorno = analisaExpressaoRetorno();
+        
+        if(retorno == -1){
+            trataErro("Expressao com tipo difentes");
+        }else if(retorno != compararTipoRetorno){
+            trataErro("Atribuicao com tipo diferente");
+        }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }  
     
     private void trataErro(String metodoChamouErro){

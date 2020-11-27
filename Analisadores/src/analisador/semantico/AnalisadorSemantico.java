@@ -194,46 +194,36 @@ public class AnalisadorSemantico {
         return false;
     }
     
-    public boolean pesquisa_tabela(String lexema){
+    public int pesquisa_tabela(String lexema){
         int i = tabelaDeSimbolos.size()-1;
         while(i >= 0){
             if (lexema.equals(tabelaDeSimbolos.get(i).getLexema())){
-                return true;
+                return i;
             }
             i--;
         } 
-        return false;
+        return -1;
     }
     
-    public String buscaTipoFuncao(String lexema){
-        int i = tabelaDeSimbolos.size()-1;
-
-        while(i >= 0){
-            if (lexema.equals(tabelaDeSimbolos.get(i).getLexema()) &&
-                "tipoFuncao".equals(tabelaDeSimbolos.get(i).getTipoLexema())){
-                return tabelaDeSimbolos.get(i).getTipo();
-            }
-            i--;
-        }
-        return "";
+    public String buscaTipoFuncao(int lexema){
+        return tabelaDeSimbolos.get(lexema).getTipo();
     }
 
     public int compatibilizacaoTipos(ArrayList expressaoPosFixa){
         //ab+c+d*
         //abc*+
         int i = 0;
-        int aritmeticos = 6;//Converter para constante
-        int relacionais = 5;//Converter para constante
-        int comparacao = 4;//Converter para constante
-        int uAritmetico = 3;//Converter para constante
-        int negacao = 2;//Converter para constante
-        int inteiro = 1;//Converter para constante
-        int booleano = 0;//Converter para constante       
+        int aritmeticos = 6;//+,-,*div          //Converter para constante
+        int relacionais = 5;//>,<,>=,<=,=,!=    //Converter para constante
+        int comparacao = 4; //=,!=,e,ou         //Converter para constante
+        int uAritmetico = 3;//+,-               //Converter para constante
+        int negacao = 2;    //nao               //Converter para constante
+        int inteiro = 1;    //numero ouvariavel //Converter para constante
+        int booleano = 0;   //booleano          //Converter para constante       
         
         ArrayList<Integer> expressaoTipos = new ArrayList();//Necessario ArrayList para deletar elemento
-        expressaoTipos = geraTabelaDeTipos(expressaoPosFixa);        
-        
-
+        expressaoTipos = geraTabelaDeTipos(expressaoPosFixa);
+        /*
         expressaoTipos.add(1);
         expressaoTipos.add(3);
         expressaoTipos.add(1);
@@ -248,46 +238,54 @@ public class AnalisadorSemantico {
         expressaoTipos.add(1);
         expressaoTipos.add(6);
         expressaoTipos.add(5);
-        
+        */ 
+        print(expressaoTipos); 
         //Se encontrar 3 operandos avanca uma posicao
         int op1, op2, op3;
         while(expressaoTipos.size() >= 3){
-            print(expressaoTipos);           
+            //print(expressaoTipos);           
             
             op1 = expressaoTipos.get(i);
             op2 = expressaoTipos.get(i+1);
             op3 = expressaoTipos.get(i+2);
             
             if(op1 == inteiro && op2 == uAritmetico){
-                System.out.println("Inteiro aritmetico");
+                //System.out.println("Inteiro aritmetico");
                 expressaoTipos.set(i+1, inteiro);
                 expressaoTipos.remove(i); 
                 //continue;
             }else if(op1 == booleano && op2 == negacao){
-                System.out.println("booleano unario(Not)");
+                //System.out.println("booleano unario(Not)");
                 expressaoTipos.set(i+1, booleano);
                 expressaoTipos.remove(i);
                 //continue;
             }else if(op1<2 && op2<2 && op3<2){
-                System.out.println("Tres operandos");
+                //System.out.println("Tres operandos");
                 i++;
                 //continue;
             }else if(op1 == inteiro && op2 == inteiro && op3 == aritmeticos){
-                System.out.println("Inteiro aritmetico");
+                //System.out.println("Inteiro aritmetico");
                 expressaoTipos.set(i+2, inteiro);
                 expressaoTipos.remove(i);
                 expressaoTipos.remove(i);
                 i=0;
                 //continue;
             }else if(op1 == inteiro && op2 == inteiro && op3 == relacionais){
-                System.out.println("Inteiro relacionais");
+                //System.out.println("Inteiro relacionais");
+                expressaoTipos.set(i+2, booleano);
+                expressaoTipos.remove(i);
+                expressaoTipos.remove(i);
+                i=0;
+                //continue;
+            }else if(op1 == inteiro && op2 == inteiro && op3 == comparacao){
+                //System.out.println("Boolearno comparacao");
                 expressaoTipos.set(i+2, booleano);
                 expressaoTipos.remove(i);
                 expressaoTipos.remove(i);
                 i=0;
                 //continue;
             }else if(op1 == booleano && op2 == booleano && op3 == comparacao){
-                System.out.println("Boolearno comparacao");
+                //System.out.println("Boolearno comparacao");
                 expressaoTipos.set(i+2, booleano);
                 expressaoTipos.remove(i);
                 expressaoTipos.remove(i);
@@ -298,8 +296,20 @@ public class AnalisadorSemantico {
         
         if(expressaoTipos.size() == 2){
             System.out.println("Verifica unario");
-            //Falta codigo aqui!
-            //Remove um elemto
+            op1 = expressaoTipos.get(i);
+            op2 = expressaoTipos.get(i+1);
+            
+            if(op1 == inteiro && op2 == uAritmetico){
+                //System.out.println("Inteiro aritmetico");
+                expressaoTipos.set(i+1, inteiro);
+                expressaoTipos.remove(i); 
+                //continue;
+            }else if(op1 == booleano && op2 == negacao){
+                //System.out.println("booleano unario(Not)");
+                expressaoTipos.set(i+1, booleano);
+                expressaoTipos.remove(i);
+                //continue;
+            }
         }
         
         if(expressaoTipos.size() == 1){
@@ -320,26 +330,26 @@ public class AnalisadorSemantico {
         String t;
         ArrayList<Integer> tabelaDeTipos = new ArrayList();        
         
-        while(i<expressaoPosFixa.size()-1){            
-            System.out.println("expressaoPosFixa.get(i): " + expressaoPosFixa.get(i));
+        
+        
+        while(i<expressaoPosFixa.size()){            
             t = expressaoPosFixa.get(i);
             if("+".equals(t) || "-".equals(t) || "*".equals(t) || "div".equals(t)){
                 tabelaDeTipos.add(6);
             }else if(">".equals(t) || "<".equals(t) || ">=".equals(t) || "<=".equals(t)){
                 tabelaDeTipos.add(5);
-            }else if("=".equals(t) || "!=".equals(t)){
+            }else if("=".equals(t) || "!=".equals(t) || "e".equals(t)|| "ou".equals(t)){
                 tabelaDeTipos.add(4);
             }else if("+ ".equals(t) || "- ".equals(t)){//Unarios
                 tabelaDeTipos.add(3);
-            }else if("not".equals(t)){
+            }else if("nao".equals(t)){
                 tabelaDeTipos.add(2);
             }else{
-                //imprimeTabelaSimbolos();
-                index = tabelaDeSimbolos.indexOf(expressaoPosFixa.get(i));
-                System.out.println("index"+ index);
-                if(tabelaDeSimbolos.get(index).getTipo() == "inteiro"){
+
+                index = pesquisa_tabela(t);                
+                if(index>0 && tabelaDeSimbolos.get(index).getTipo() == "inteiro"){
                     tabelaDeTipos.add(1);
-                }else if(tabelaDeSimbolos.get(index).getTipo() == "booleano"){
+                }else if(index>0 && tabelaDeSimbolos.get(index).getTipo() == "booleano"){
                     tabelaDeTipos.add(0);
                 }else{//Eh pra ter sobrado apenas numero
                     tabelaDeTipos.add(1);
@@ -352,14 +362,14 @@ public class AnalisadorSemantico {
     
     
     private void print(ArrayList expressaoTipos){
-        System.out.println("--------------");
+
             for(int j = 0; j < expressaoTipos.size(); j++){
-                System.out.print(" " + expressaoTipos.get(j));
+                System.out.print(expressaoTipos.get(j) + " ");
             }
-        System.out.println("\n--------------");
+        System.out.println("");
     }
     
-    private class OperadorPrecedecia{//Confirmar isso
+    private class OperadorPrecedecia{
         public int preced;
         public String operador;
         public OperadorPrecedecia(int p, String o){
