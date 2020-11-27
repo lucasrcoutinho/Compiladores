@@ -5,6 +5,8 @@
  */
 package analisador.lexico.backend;
 
+import java.io.IOException;
+
 /**
  *
  * @author lucas
@@ -25,14 +27,23 @@ public class AnalisadorLexico {
     LeArquivo leArquivo;
     String caminhoArquivoFonte;
 
- 
+    /*
     public AnalisadorLexico(String caminhoArquivoF){
         numeroDaLinha = 1; 
         caminhoArquivoFonte = caminhoArquivoF;
         leArquivo = new LeArquivo();
         token = new Token("", "", 0);
         lerChar();
+    }*/
+    ////////////////////////////////////////////////////////////////////////////
+    public AnalisadorLexico(String caminhoArquivoF) throws IOException{
+        numeroDaLinha = 1; 
+        caminhoArquivoFonte = caminhoArquivoF;
+        leArquivo = new LeArquivo(caminhoArquivoFonte);
+        token = new Token("", "", 0);
+        lerChar();
     }
+    ////////////////////////////////////////////////////////////////////////////
     
     public Token getToken(){
         token.setErro("");

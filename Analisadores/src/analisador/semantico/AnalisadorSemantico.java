@@ -277,13 +277,6 @@ public class AnalisadorSemantico {
                 expressaoTipos.remove(i);
                 i=0;
                 //continue;
-            }else if(op1 == inteiro && op2 == inteiro && op3 == comparacao){
-                //System.out.println("Boolearno comparacao");
-                expressaoTipos.set(i+2, booleano);
-                expressaoTipos.remove(i);
-                expressaoTipos.remove(i);
-                i=0;
-                //continue;
             }else if(op1 == booleano && op2 == booleano && op3 == comparacao){
                 //System.out.println("Boolearno comparacao");
                 expressaoTipos.set(i+2, booleano);
@@ -426,7 +419,11 @@ public class AnalisadorSemantico {
             }else if(lexeamaTemp == "sfecha_parenteses"){
                 if (pilha.size() > 0){
                     while (pilha.lastElement().operador != "("){
-                        expressaoPosFixa.add(pilha.pop().operador);
+                        if(pilha.lastElement().operador == ")"){
+                            pilha.pop();
+                        }else{
+                            expressaoPosFixa.add(pilha.pop().operador);
+                        }
                     }
                     pilha.pop();
                 }else System.out.println("Erro Semantico");

@@ -29,6 +29,8 @@ public class AnalisadorSintatico {
     String caminhoArquivoFonte;
     AnalisadorLexico analisadorLexico;
     AnalisadorSemantico analisadorSemantico;
+    boolean flagRetornoOk = false;
+    boolean flagVerificaRetorno = false;
     
     public void inicioSintatico(String caminho){
         erro = false;
@@ -136,7 +138,8 @@ public class AnalisadorSintatico {
     private void analisaTipo(){
         if (!"sinteiro".equals(token.getSimbolo()) && !"sbooleano".equals(token.getSimbolo())){
             trataErro("Esperado inteiro ou booleano");
-        }//else getToken();
+            return;
+        }
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         analisadorSemantico.coloca_tipo(token.getLexema());
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -147,13 +150,19 @@ public class AnalisadorSintatico {
         if ("sinicio".equals(token.getSimbolo())){
             getToken();
             //******************************************************************
-            //flagRetornoOk=false
+            if(flagVerificaRetorno){
+                flagRetornoOk=false;
+            }            
             //******************************************************************
             analisaComandoSimples();
             while (!"sfim".equals(token.getSimbolo())){
                 //**************************************************************
-                //Se flagRetornoOk == true então erro   |talvez sai
-                //Encontrou codigo unreachable          |essa parte
+                if(flagVerificaRetorno){
+                    if (flagRetornoOk){
+                        trataErro("Codigo unreachable apos retorno");
+                        return;
+                    }
+                }
                 //**************************************************************
                 if ("sponto_virgula".equals(token.getSimbolo())){
                     getToken();
@@ -167,6 +176,11 @@ public class AnalisadorSintatico {
             //******************************************************************
             // Se flagRetornoOk == false então erro
             // Não encontrou um retorno
+            if(flagVerificaRetorno){
+                if(!flagRetornoOk){
+                    trataErro("Retorno nao encontrado");
+                }
+            } 
             //******************************************************************
             getToken();
         } else trataErro("Eperado palavra reservada inicio");
@@ -210,12 +224,16 @@ public class AnalisadorSintatico {
             //******************************************************************
             //com o retorno de funcao ativado
             //Verificar se o token anterior eh funcao
+            if(flagVerificaRetorno){
+                flagRetornoOk = false;
+            }
             //******************************************************************
             analisaAtribuicao(bkpToken);
         }else{
             //******************************************************************
             //com o retorno de funcao ativado
             //Se entrou aqui nao teve atribuicao, erro samantico.
+            
             //******************************************************************
             //Verificar se o token anterior eh procedimento
             chamadaProcedimento(/*token anterior*/);
@@ -261,31 +279,53 @@ public class AnalisadorSintatico {
     }
     
     private void analisaEnquanto(){
+        int retorno;
         getToken();
         //----------------------------------------------------------------------
-        analisaExpressaoRetorno();//retorno
+        //analisaExpressaoRetorno();//retorno
+        retorno = analisaExpressaoRetorno();
+        
+        if(retorno == -1){
+            trataErro("Expressao com tipo difentes");
+        }else if(retorno != 0){
+            trataErro("Expressao nao booleana");
+        }
         //----------------------------------------------------------------------
         if ("sfaca".equals(token.getSimbolo())){       
             getToken();
             analisaComandoSimples();
             //**************************************************************
-            //flagRetornoOk=false
             //Retorno aqui nao eh garantido
+            if(flagVerificaRetorno){
+                flagRetornoOk = false;
+            }    
             //**************************************************************
         }else trataErro("Esperado palavra reservada faca"); 
     }     
     
     private void analisaSe(){
+        int retorno;
+        boolean backupflagRetornoOk = false;
         getToken();
         //----------------------------------------------------------------------
-        analisaExpressaoRetorno();//retorno 
+        //analisaExpressaoRetorno();//retorno 
+        retorno = analisaExpressaoRetorno();
+        
+        if(retorno == -1){
+            trataErro("Expressao com tipo difentes");
+        }else if(retorno != 0){
+            trataErro("Expressao nao booleana");
+        }
         //----------------------------------------------------------------------
         if ("sentao".equals(token.getSimbolo())){
             getToken();
             analisaComandoSimples();
             //******************************************************************
-            //backupflagRetornoOk = flagRetornoOk
-            //flagRetornoOk = false
+            //
+            if(flagVerificaRetorno){
+                backupflagRetornoOk = flagRetornoOk;
+                flagRetornoOk = false;
+            }            
             //******************************************************************
             if ("ssenao".equals(token.getSimbolo())){
                 getToken();
@@ -294,8 +334,14 @@ public class AnalisadorSintatico {
         }else trataErro("Esperado palavra reservada entao");
         //**********************************************************************
         //se backupflagRetornoOk ou flagRetornoOk != true entao
-        //flagRetornoOk == false
-        //senao flagRetornoOk == true
+        //senao flagRetornoOk = true
+        if(flagVerificaRetorno){
+            if(!backupflagRetornoOk || !flagRetornoOk){
+                flagRetornoOk = false;
+            }else{
+                flagRetornoOk = true;
+            }
+        }        
         //**********************************************************************
     }
     
@@ -363,9 +409,9 @@ public class AnalisadorSintatico {
                     getToken();
                     if ("sponto_virgula".equals(token.getSimbolo())){
                         //******************************************************
-                        //Liga verificação de retorno(verificaRetorno = true)
+                        flagVerificaRetorno = true;
                         analisaBloco();
-                        //Desliga a verificação de retorno(verificaRetorno = false)
+                        flagVerificaRetorno = false;
                         //******************************************************
                     }
                 }else trataErro("O tipo da funcao deve ser inteiro ou booleano");  
@@ -463,7 +509,7 @@ public class AnalisadorSintatico {
                 }
                 
             }else{
-                trataErro("Identificador nao definido********************");
+                trataErro("Identificador nao definido");
                 return;
             }
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~            
@@ -493,8 +539,6 @@ public class AnalisadorSintatico {
     
     private void chamadaProcedimento(){  
         //Verifcar se identificador eh do tipo procedimento
-        
-        
         //????getToken();
         //????Verificar se atribuição 
     }
@@ -507,12 +551,8 @@ public class AnalisadorSintatico {
         int indice;
         String tipo;
         int compararTipoRetorno = -1;
-        int retorno;
-        
-        System.out.println("*****************" + tokenAnterior.getLexema());   
-        
+        int retorno;        
         indice = analisadorSemantico.pesquisa_tabela(tokenAnterior.getLexema());
-        System.out.println("******************Indice: " + indice);
         if(indice >= 0){
             tipo = analisadorSemantico.buscaTipoFuncao(indice);
             if("inteiro".equals(tipo)){
@@ -559,7 +599,6 @@ public class AnalisadorSintatico {
     
     
     private void imprimeExpressao(ArrayList<Token> expressao){//Metodo temporario
-
         for(int i = 0; i< expressao.size(); i++){
             System.out.print(expressao.get(i).getSimbolo());
         }

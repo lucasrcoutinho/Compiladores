@@ -6,10 +6,13 @@
 package analisador.lexico.backend;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -25,7 +28,14 @@ public class LeArquivo {
     LeArquivo(){
         indice = 0;
     }
-    
+    ////////////////////////////////////////////////////////////////////////////
+    LeArquivo(String path) throws IOException{
+        Writer arquivo = new BufferedWriter(new FileWriter(path, true));
+        arquivo.append("\n ");
+        arquivo.close();
+        indice = 0;
+    }
+    ////////////////////////////////////////////////////////////////////////////
     public ArrayList getPrograma(String caminho){          
         try{
             FileReader arq = new FileReader(caminho);
