@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import analisador.lexico.backend.AnalisadorLexico;
 import analisador.lexico.backend.Token;
 import analisador.semantico.AnalisadorSemantico;
+import java.io.IOException;
 
 /**
  *
@@ -32,7 +33,7 @@ public class AnalisadorSintatico {
     boolean flagRetornoOk = false;
     boolean flagVerificaRetorno = false;
     
-    public void inicioSintatico(String caminho){
+    public void inicioSintatico(String caminho) throws IOException{
         erro = false;
         indiceToken = 0;
         linhaErro = -1;
@@ -219,23 +220,33 @@ public class AnalisadorSintatico {
         Token bkpToken = new Token(token.getLexema(), token.getSimbolo(), 0); 
         getToken();        
         if ("satribuicao".equals(token.getSimbolo())){
-            //Verificar se o token anterior eh variavel
-            
+            //Verificar se o token anterior eh variavel            
             //******************************************************************
             //com o retorno de funcao ativado
             //Verificar se o token anterior eh funcao
+            /*
             if(flagVerificaRetorno){
-                flagRetornoOk = false;
+                if(!analisadorSemantico.pesquisa_declfunc_tabela(bkpToken.getLexema())){
+                    trataErro("Funcao nao declarada");
+                    return;
+                }
             }
+            */
             //******************************************************************
             analisaAtribuicao(bkpToken);
         }else{
             //******************************************************************
             //com o retorno de funcao ativado
             //Se entrou aqui nao teve atribuicao, erro samantico.
-            
+            if(flagVerificaRetorno){
+                    trataErro("Nao eh uma funcao");                
+            }
             //******************************************************************
             //Verificar se o token anterior eh procedimento
+            if(!analisadorSemantico.pesquisa_declproc_tabela(mensagemErro)){
+                trataErro("Procedimento nao declarada");
+                return;
+            }
             chamadaProcedimento(/*token anterior*/);
         } 
     }
@@ -313,8 +324,10 @@ public class AnalisadorSintatico {
         
         if(retorno == -1){
             trataErro("Expressao com tipo difentes");
+            return;
         }else if(retorno != 0){
             trataErro("Expressao nao booleana");
+            return;
         }
         //----------------------------------------------------------------------
         if ("sentao".equals(token.getSimbolo())){

@@ -213,9 +213,10 @@ public class AnalisadorSemantico {
         //ab+c+d*
         //abc*+
         int i = 0;
+        int eOu = 7;        //e,ou              //Converter para constante
         int aritmeticos = 6;//+,-,*div          //Converter para constante
         int relacionais = 5;//>,<,>=,<=,=,!=    //Converter para constante
-        int comparacao = 4; //=,!=,e,ou         //Converter para constante
+        int comparacao = 4; //=,!=,             //Converter para constante
         int uAritmetico = 3;//+,-               //Converter para constante
         int negacao = 2;    //nao               //Converter para constante
         int inteiro = 1;    //numero ouvariavel //Converter para constante
@@ -243,7 +244,7 @@ public class AnalisadorSemantico {
         //Se encontrar 3 operandos avanca uma posicao
         int op1, op2, op3;
         while(expressaoTipos.size() >= 3){
-            //print(expressaoTipos);           
+            print(expressaoTipos);   
             
             op1 = expressaoTipos.get(i);
             op2 = expressaoTipos.get(i+1);
@@ -252,14 +253,16 @@ public class AnalisadorSemantico {
             if(op1 == inteiro && op2 == uAritmetico){
                 //System.out.println("Inteiro aritmetico");
                 expressaoTipos.set(i+1, inteiro);
-                expressaoTipos.remove(i); 
+                expressaoTipos.remove(i);
+                i=0;
                 //continue;
             }else if(op1 == booleano && op2 == negacao){
                 //System.out.println("booleano unario(Not)");
                 expressaoTipos.set(i+1, booleano);
                 expressaoTipos.remove(i);
+                i=0;
                 //continue;
-            }else if(op1<2 && op2<2 && op3<2){
+            }else if(op1<2 && op2<2 && (op3<2 || op3 == 3)){
                 //System.out.println("Tres operandos");
                 i++;
                 //continue;
@@ -278,6 +281,20 @@ public class AnalisadorSemantico {
                 i=0;
                 //continue;
             }else if(op1 == booleano && op2 == booleano && op3 == comparacao){
+                //System.out.println("Boolearno comparacao");
+                expressaoTipos.set(i+2, booleano);
+                expressaoTipos.remove(i);
+                expressaoTipos.remove(i);
+                i=0;
+                //continue;
+            }else if(op1 == booleano && op2 == booleano && op3 == eOu){
+                //System.out.println("Boolearno comparacao");
+                expressaoTipos.set(i+2, booleano);
+                expressaoTipos.remove(i);
+                expressaoTipos.remove(i);
+                i=0;
+                //continue;
+            }else if(op1 == inteiro && op2 == inteiro && op3 == comparacao){
                 //System.out.println("Boolearno comparacao");
                 expressaoTipos.set(i+2, booleano);
                 expressaoTipos.remove(i);
@@ -327,11 +344,13 @@ public class AnalisadorSemantico {
         
         while(i<expressaoPosFixa.size()){            
             t = expressaoPosFixa.get(i);
-            if("+".equals(t) || "-".equals(t) || "*".equals(t) || "div".equals(t)){
+            if("e".equals(t)|| "ou".equals(t)){
+                tabelaDeTipos.add(7);
+            }else if("+".equals(t) || "-".equals(t) || "*".equals(t) || "div".equals(t)){
                 tabelaDeTipos.add(6);
             }else if(">".equals(t) || "<".equals(t) || ">=".equals(t) || "<=".equals(t)){
                 tabelaDeTipos.add(5);
-            }else if("=".equals(t) || "!=".equals(t) || "e".equals(t)|| "ou".equals(t)){
+            }else if("=".equals(t) || "!=".equals(t)){
                 tabelaDeTipos.add(4);
             }else if("+ ".equals(t) || "- ".equals(t)){//Unarios
                 tabelaDeTipos.add(3);
@@ -344,10 +363,12 @@ public class AnalisadorSemantico {
                     tabelaDeTipos.add(1);
                 }else if(index>0 && tabelaDeSimbolos.get(index).getTipo() == "booleano"){
                     tabelaDeTipos.add(0);
-                }else{//Eh pra ter sobrado apenas numero
+                }else if ("verdadeiro".equals(t) || "falso".equals(t)){//Eh pra ter sobrado apenas numero
+                    tabelaDeTipos.add(0);
+                }else{//Eh pra ter sobrado so numero
                     tabelaDeTipos.add(1);
                 }          
-            }
+            }            
             i++;          
         }
         return tabelaDeTipos;
@@ -383,7 +404,8 @@ public class AnalisadorSemantico {
             lexeamaTemp = expressao.get(0).getLexema();
             
             if(lexeamaTemp == "snumero" || 
-               lexeamaTemp == "sidentificador"){
+               lexeamaTemp == "sidentificador" ||
+               lexeamaTemp == "sbooleano"){
                expressaoPosFixa.add(expressao.get(0).getSimbolo());
                //Tem que buscar o tipo na tabela de simbolos
                expressao.remove(0);
@@ -427,6 +449,8 @@ public class AnalisadorSemantico {
                     }
                     pilha.pop();
                 }else System.out.println("Erro Semantico");
+                expressao.remove(0);
+                continue;
             }      
            
             while(pilha.size()>0 && pilha.lastElement().preced >= valorPrecedencia

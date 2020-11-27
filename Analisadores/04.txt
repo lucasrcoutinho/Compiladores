@@ -12,7 +12,7 @@ inicio
   se x>1  entao
       x:= 0;
   leia(b) ;
-  enquanto (a != 89) e (a<= 1000)  {condicao de parada}
+  enquanto (a <= 89) e (a<= 1000)  {condicao de parada}
   faca inicio
            a:= x+z
        fim;
@@ -22,7 +22,7 @@ fim;
 funcao f1:booleano;
 inicio
   leia(a);
-  x:= 1+2
+  x:= -1+(-2+8+3)*2+1*2
 fim;
 
 procedimento analisa2;
@@ -40,3 +40,4 @@ inicio
 fim.
 
 {fim} 
+ 
