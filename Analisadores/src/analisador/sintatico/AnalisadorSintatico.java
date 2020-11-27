@@ -112,7 +112,7 @@ public class AnalisadorSintatico {
             if ("sidentificador".equals(token.getSimbolo())){
                 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 if(analisadorSemantico.pesquisa_duplicvar_tabela(token.getLexema())){
-                    trataErro("Varialvel ja declarada");
+                    trataErro("Variavel ja declarada");
                     return;
                 }
                 analisadorSemantico.insere_tabela(token.getLexema(), "tipoVariavel", "", -1);
@@ -192,7 +192,10 @@ public class AnalisadorSintatico {
             case "sidentificador":
                 //**************************************************************
                 //  O valor de retorno ou expressao tem que ter o mesmo tipo da funcao 
-                //  se token.getLexema == (getProcCorrente) 
+                //  se token.getLexema == (getProcCorrente)
+                if(token.getLexema().equals(analisadorSemantico.getProcCorrente())){
+                    flagRetornoOk = true;
+                }
                 //  Então analisa atribuição e 
                 //  se tiver mais codigo depois = erro
                 //**************************************************************
@@ -220,33 +223,43 @@ public class AnalisadorSintatico {
         Token bkpToken = new Token(token.getLexema(), token.getSimbolo(), 0); 
         getToken();        
         if ("satribuicao".equals(token.getSimbolo())){
-            //Verificar se o token anterior eh variavel            
+            //Verificar se o token anterior eh variavel
+            if(!analisadorSemantico.pesquisa_declvar_tabela(bkpToken.getLexema())){
+                if(!flagVerificaRetorno){
+                    trataErro("Tentativa de atribuicao a nao variavel");
+                }else if(!analisadorSemantico.pesquisa_declfunc_tabela(bkpToken.getLexema())){
+                        trataErro("Funcao nao declarada");
+                        return;
+                }
+            }/*else{
             //******************************************************************
             //com o retorno de funcao ativado
-            //Verificar se o token anterior eh funcao
-            /*
-            if(flagVerificaRetorno){
-                if(!analisadorSemantico.pesquisa_declfunc_tabela(bkpToken.getLexema())){
-                    trataErro("Funcao nao declarada");
-                    return;
+            //Verificar se o token anterior eh funcao 
+                if(flagVerificaRetorno){
+                    if(!analisadorSemantico.pesquisa_declvar_tabela(bkpToken.getLexema())){
+                        trataErro("Tentativa de atribuicao a nao variavel");
+                    }else if(!analisadorSemantico.pesquisa_declfunc_tabela(bkpToken.getLexema())){
+                        trataErro("Funcao nao declarada");
+                        return;
+                    }
                 }
-            }
-            */
+            }*/
             //******************************************************************
             analisaAtribuicao(bkpToken);
         }else{
             //******************************************************************
             //com o retorno de funcao ativado
             //Se entrou aqui nao teve atribuicao, erro samantico.
-            if(flagVerificaRetorno){
-                    trataErro("Nao eh uma funcao");                
+            if(analisadorSemantico.pesquisa_declfunc_tabela(bkpToken.getLexema())){
+                trataErro("Funcao usada sem considerar o valor de retorno");                
             }
             //******************************************************************
             //Verificar se o token anterior eh procedimento
-            if(!analisadorSemantico.pesquisa_declproc_tabela(mensagemErro)){
-                trataErro("Procedimento nao declarada");
+            if(!analisadorSemantico.pesquisa_declproc_tabela(bkpToken.getLexema())){
+                trataErro("Procedimento nao declarado");
                 return;
             }
+            
             chamadaProcedimento(/*token anterior*/);
         } 
     }
@@ -297,8 +310,10 @@ public class AnalisadorSintatico {
         retorno = analisaExpressaoRetorno();
         
         if(retorno == -1){
-            trataErro("Expressao com tipo difentes");
+            token.setLinha(token.getLinha()-1);
+            trataErro("Expressao com tipos difentes");
         }else if(retorno != 0){
+            token.setLinha(token.getLinha()-1);
             trataErro("Expressao nao booleana");
         }
         //----------------------------------------------------------------------
@@ -323,9 +338,11 @@ public class AnalisadorSintatico {
         retorno = analisaExpressaoRetorno();
         
         if(retorno == -1){
-            trataErro("Expressao com tipo difentes");
+            token.setLinha(token.getLinha()-1);
+            trataErro("Expressao com tipos difentes");
             return;
         }else if(retorno != 0){
+            token.setLinha(token.getLinha()-1);
             trataErro("Expressao nao booleana");
             return;
         }
@@ -553,7 +570,6 @@ public class AnalisadorSintatico {
     private void chamadaProcedimento(){  
         //Verifcar se identificador eh do tipo procedimento
         //????getToken();
-        //????Verificar se atribuição 
     }
     
     
@@ -582,9 +598,10 @@ public class AnalisadorSintatico {
         retorno = analisaExpressaoRetorno();
         
         if(retorno == -1){
-            trataErro("Expressao com tipo difentes");
+            token.setLinha(token.getLinha()-1);
+            trataErro("Expressao com tipos difentes");
         }else if(retorno != compararTipoRetorno){
-            trataErro("Atribuicao com tipo diferente");
+            trataErro("Atribuicao com tipos difentes");
         }
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }  
@@ -605,9 +622,9 @@ public class AnalisadorSintatico {
         if (erro == false){
             return("Sucesso");
         }else if ("".equals(token.getErro())){
-            return("Erro sintatico na linha: " + linhaErro + mensagemErro);
+            return("Erro na linha: " + linhaErro + mensagemErro);
         }        
-        return("Erro lexico na linha: " + linhaErro + " - " + token.getErro());
+        return("Erro na linha: " + linhaErro + " - " + token.getErro());
     }
     
     

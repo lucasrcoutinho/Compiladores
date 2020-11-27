@@ -19,10 +19,17 @@ inicio
   escreva(b)
 fim;
 
-funcao f1:booleano;
+funcao f1:inteiro;
 inicio
   leia(a);
-  x:= -1+(-2+8+3)*2+1*2
+    {se f1 > (u+ c*a)
+    entao f1:= 2
+    senao se f1 > (u+ c*a)
+		entao f1:= 2
+		senao f1:= -1;}
+	a:= x+z;	
+  f1:= -1+(-2+8+3)*2+1*2
+  
 fim;
 
 procedimento analisa2;
@@ -31,7 +38,9 @@ inicio
 fim;
 
 inicio
-    f1;
+    a:=2;
+    analisa1;
+    a:=f1;
     analisa1;
     analisa2;
     se f1 > (u+ c*a)
@@ -40,4 +49,5 @@ inicio
 fim.
 
 {fim} 
+ 
  

@@ -114,6 +114,18 @@ public class AnalisadorSemantico {
         }
     }
     
+    public String getProcCorrente(){
+        int i = tabelaDeSimbolos.size()-1;
+        
+        while(tabelaDeSimbolos.get(i).getNivelEscopo() != "L" && i > 0){
+             i--;
+             if(i == 0){
+                 return "";
+             }
+        }
+        return tabelaDeSimbolos.get(i).getLexema();
+    }
+    
     public boolean pesquisa_duplicvar_tabela(String lexema){//ok
         //pesquisa duplicidade de variavel no escopoNivel atual
         //pesquisa se nome da variavel ja foi usada por procedimento, funcao ou programa em qq escopoNivel
@@ -372,8 +384,7 @@ public class AnalisadorSemantico {
             i++;          
         }
         return tabelaDeTipos;
-    }
-    
+    }   
     
     private void print(ArrayList expressaoTipos){
 
