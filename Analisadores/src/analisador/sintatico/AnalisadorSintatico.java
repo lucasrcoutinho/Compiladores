@@ -21,10 +21,11 @@ public class AnalisadorSintatico {
     Token novoToken;
     ArrayList <Token> listaDeTokens = new ArrayList();
     ArrayList <Token> expressao = new ArrayList<>();
+    ArrayList <String> codigoGeradoTemp = new ArrayList<>();
     int indiceToken = 0;
     int linhaErro = -1;
     int linhaErroSintatico=-1;
-    boolean erro = false;
+    int rotulo = 1;
     String mensagemErro;
     String descricaoErroLexico;
     String caminhoArquivoFonte;
@@ -32,6 +33,7 @@ public class AnalisadorSintatico {
     AnalisadorSemantico analisadorSemantico;
     boolean flagRetornoOk = false;
     boolean flagVerificaRetorno = false;
+    boolean erro = false;
     
     public void inicioSintatico(String caminho) throws IOException{
         erro = false;
@@ -52,14 +54,21 @@ public class AnalisadorSintatico {
     }
     
     private void analisadorSintatico(){
+        //++++++++++++++++++++++++++++
+        //rotulo = 0
+        //++++++++++++++++++++++++++++
         getToken();
         if ("sprograma".equals(token.getSimbolo())){
             getToken();
             if ("sidentificador".equals(token.getSimbolo())){
-               //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-               analisadorSemantico.insere_tabela(token.getLexema(), "nomedeprograma", "", -1);
-               //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-               getToken();
+                //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                analisadorSemantico.insere_tabela(token.getLexema(), "nomedeprograma", "", -1);
+                //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                //++++++++++++++
+                //Gera START
+                System.out.println("START");
+                //++++++++++++++
+                getToken();
                 if ("sponto_virgula".equals(token.getSimbolo())){
                    analisaBloco();
                    //getToken();
@@ -83,10 +92,27 @@ public class AnalisadorSintatico {
     
     private void analisaBloco(){
         getToken();
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //Gera label NULL, se nao for programa
+        //System.out.println("L" + rotulo +" NULL");
+        //rotulo++;
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         analisaEtVariaveis();
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //Gera ALLOC 0,quantidade de var
+        System.out.println("ALLOC");
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //analisadorSemantico.imprimeTabelaSimbolos();
         analisaSubRotina();//Aqui checa retorno de funcao na declaracao!
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //gera rotulo L NULL
+        //System.out.println("L" +rotulo+ " NULL");
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         analisaComandos();
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //Gera DALLOC 0,quantidade de var
+        System.out.println("DALLOC");
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     }
     
     private void analisaEtVariaveis(){
@@ -223,6 +249,8 @@ public class AnalisadorSintatico {
         Token bkpToken = new Token(token.getLexema(), token.getSimbolo(), 0); 
         getToken();        
         if ("satribuicao".equals(token.getSimbolo())){
+            //******************************************************************
+            //Pode ir pra dentro do analisa atribuição 
             //Verificar se o token anterior eh variavel
             if(!analisadorSemantico.pesquisa_declvar_tabela(bkpToken.getLexema())){
                 if(!flagVerificaRetorno){
@@ -231,7 +259,8 @@ public class AnalisadorSintatico {
                         trataErro("Funcao nao declarada");
                         return;
                 }
-            }/*else{
+            }//******************************************************************
+            /*else{
             //******************************************************************
             //com o retorno de funcao ativado
             //Verificar se o token anterior eh funcao 
@@ -250,6 +279,7 @@ public class AnalisadorSintatico {
             //******************************************************************
             //com o retorno de funcao ativado
             //Se entrou aqui nao teve atribuicao, erro samantico.
+            //?Pode ir pra dentro de chamadaProcedimento???
             if(analisadorSemantico.pesquisa_declfunc_tabela(bkpToken.getLexema())){
                 trataErro("Funcao usada sem considerar o valor de retorno");                
             }
@@ -273,8 +303,14 @@ public class AnalisadorSintatico {
                 if(!analisadorSemantico.pesquisa_declvar_tabela(token.getLexema())){
                     trataErro("Variavel nao declarada");
                     return;
-                }
+                }                
                 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                //gera RD
+                System.out.println("RD");
+                //gera STR
+                System.out.println("STR");
+                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 getToken();
                 if ("sfecha_parenteses".equals(token.getSimbolo())){
                     getToken();
@@ -294,6 +330,12 @@ public class AnalisadorSintatico {
                     return;
                 }
                 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                //gera LDV
+                System.out.println("LDV");
+                //gera PRN
+                System.out.println("PRN");
+                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 getToken();
                 if ("sfecha_parenteses".equals(token.getSimbolo())){
                     getToken();
@@ -306,9 +348,11 @@ public class AnalisadorSintatico {
         int retorno;
         getToken();
         //----------------------------------------------------------------------
-        //analisaExpressaoRetorno();//retorno
-        retorno = analisaExpressaoRetorno();
         
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //Gera Lx NULL
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++        
+        retorno = analisaExpressaoRetorno(); 
         if(retorno == -1){
             token.setLinha(token.getLinha()-1);
             trataErro("Expressao com tipos difentes");
@@ -317,15 +361,24 @@ public class AnalisadorSintatico {
             trataErro("Expressao nao booleana");
         }
         //----------------------------------------------------------------------
+        
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //Gera JUMPF Ly
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++        
         if ("sfaca".equals(token.getSimbolo())){       
             getToken();
-            analisaComandoSimples();
-            //**************************************************************
+            analisaComandoSimples();            
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            //gera JMP Lx
+            //Gera Ly NULL
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            
+            //******************************************************************
             //Retorno aqui nao eh garantido
             if(flagVerificaRetorno){
                 flagRetornoOk = false;
             }    
-            //**************************************************************
+            //******************************************************************
         }else trataErro("Esperado palavra reservada faca"); 
     }     
     
@@ -335,8 +388,7 @@ public class AnalisadorSintatico {
         getToken();
         //----------------------------------------------------------------------
         //analisaExpressaoRetorno();//retorno 
-        retorno = analisaExpressaoRetorno();
-        
+        retorno = analisaExpressaoRetorno();        
         if(retorno == -1){
             token.setLinha(token.getLinha()-1);
             trataErro("Expressao com tipos difentes");
@@ -347,21 +399,39 @@ public class AnalisadorSintatico {
             return;
         }
         //----------------------------------------------------------------------
-        if ("sentao".equals(token.getSimbolo())){
+      
+        if ("sentao".equals(token.getSimbolo())){            
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            //Gera comparacao(Topo da pilha)
+            //Gera JMPF L1
+            System.out.println("JMPF L");
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++            
             getToken();
-            analisaComandoSimples();
+            analisaComandoSimples();            
             //******************************************************************
-            //
             if(flagVerificaRetorno){
                 backupflagRetornoOk = flagRetornoOk;
                 flagRetornoOk = false;
             }            
-            //******************************************************************
-            if ("ssenao".equals(token.getSimbolo())){
+            //******************************************************************            
+            if ("ssenao".equals(token.getSimbolo())){                
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            //Gera JMP L2
+                System.out.println("JMP L");
+            //Gera label L1
+                System.out.println("L NULL");
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++            
                 getToken();
-                analisaComandoSimples();
+                analisaComandoSimples();                
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            //Gera label L2
+            System.out.println("L NULL");
+            }else{           
+            //Gera label L1
+            System.out.println("L NULL");
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++             
             }
-        }else trataErro("Esperado palavra reservada entao");
+        }else trataErro("Esperado palavra reservada entao");        
         //**********************************************************************
         //se backupflagRetornoOk ou flagRetornoOk != true entao
         //senao flagRetornoOk = true
@@ -377,8 +447,15 @@ public class AnalisadorSintatico {
     
     private void analisaSubRotina(){
         int flag = 0;
+        int auxrot=0;
         if ("sprocedimento".equals(token.getSimbolo()) || "sfuncao".equals(token.getSimbolo())){
-            //Geração de codigo
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            auxrot= rotulo;
+            //GERA(´ ´,JMP,rotulo,´ ´) {Salta sub-rotinas}
+            System.out.println("JMP L" + rotulo);    
+            rotulo++;
+            flag = 1;
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         }
         while("sprocedimento".equals(token.getSimbolo()) || "sfuncao".equals(token.getSimbolo())){
             if ("sprocedimento".equals(token.getSimbolo())){
@@ -393,11 +470,20 @@ public class AnalisadorSintatico {
                 return;
             }  
         }
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //se flag = 1 entao Gera(auxrot,NULL,´ ´,´ ´) {início do principal}
+        if(flag == 1) System.out.println("L" + auxrot + "NULL");
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     }
     
     private void analisaDeclaracaoProcedimento(){
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //gera label NULL para chamada de funcao/proc
+        System.out.println("L" +rotulo+ " NULL");
+        rotulo++;
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         getToken();
-        if ("sidentificador".equals(token.getSimbolo())){
+        if ("sidentificador".equals(token.getSimbolo())){            
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if(analisadorSemantico.pesquisa_declproc_tabela(token.getLexema())){
                 trataErro("Procedimento ja declarado");
@@ -405,22 +491,25 @@ public class AnalisadorSintatico {
             }else{
                 analisadorSemantico.insere_tabela(token.getLexema(), "tipoProcedimento", "L", -1);
             }
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~            
             getToken();
             if("sponto_virgula".equals(token.getSimbolo())){
                 analisaBloco();
             }else trataErro("Esperado pontovirgula");  
-        }else trataErro("Esparado identificado");
-        
+        }else trataErro("Esparado identificado");        
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         analisadorSemantico.desempilha();        
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     
     private void analisaDeclaracaoFuncao(){//BO*********************************
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //gera label NULL para chamada de funcao/proc
+        System.out.println("L" +rotulo+ " NULL");
+        rotulo++;
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         getToken();
-        if ("sidentificador".equals(token.getSimbolo())){
+        if ("sidentificador".equals(token.getSimbolo())){            
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if(analisadorSemantico.pesquisa_declvarfunc_tabela(token.getLexema())){
                 trataErro("Funcao ja declarada");
@@ -428,25 +517,25 @@ public class AnalisadorSintatico {
             }else{
                 analisadorSemantico.insere_tabela(token.getLexema(), "tipoFuncao", "L", -1);
             }
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~            
             getToken();
             if ("sdoispontos".equals(token.getSimbolo())){
                 getToken();
-                if ("sinteiro".equals(token.getSimbolo()) || "sbooleano".equals(token.getSimbolo())){
+                if ("sinteiro".equals(token.getSimbolo()) || "sbooleano".equals(token.getSimbolo())){                    
                     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                     analisadorSemantico.coloca_tipo(token.getLexema());
-                    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                    
                     getToken();
-                    if ("sponto_virgula".equals(token.getSimbolo())){
+                    if ("sponto_virgula".equals(token.getSimbolo())){                        
                         //******************************************************
                         flagVerificaRetorno = true;
                         analisaBloco();
                         flagVerificaRetorno = false;
-                        //******************************************************
+                        //******************************************************                        
                     }
                 }else trataErro("O tipo da funcao deve ser inteiro ou booleano");  
             }else trataErro("Esperado doispontos");  
-        }else trataErro("Esperado identifacador");
+        }else trataErro("Esperado identifacador");        
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         analisadorSemantico.desempilha();
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -458,16 +547,21 @@ public class AnalisadorSintatico {
         expressao.clear();        
         analisaExpressao();//Gera a expressao original
         ArrayList<String> exprecaoPosFixa =  new ArrayList();
-        System.out.println("Expressao original: ");
-        imprimeExpressao(expressao);
+        //System.out.println("Expressao original: ");
+        //imprimeExpressao(expressao);
         exprecaoPosFixa = analisadorSemantico.convertePosFixa(expressao);
 
-        //analisadorSemantico.convertePosFixa(expressao);       
+        //analisadorSemantico.convertePosFixa(expressao);
+        /*
         if(analisadorSemantico.compatibilizacaoTipos(exprecaoPosFixa)<0){
             System.out.println("Tipos diferentes na expressao"); 
         }else{
             System.out.println("Expressao OK");
         }
+        */
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //Gera expressao
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         return analisadorSemantico.compatibilizacaoTipos(exprecaoPosFixa);//Retorna o tipo da expressao -1-erro 0-Bool 1-int     
     }
     //--------------------------------------------------------------------------
@@ -486,7 +580,7 @@ public class AnalisadorSintatico {
             getToken();
             analisaExpressaoSimples();
         }        
-        //O retorno do analisaExpressao nao pode ser aqui!
+        //?O retorno do analisaExpressao nao pode ser aqui por causa da "recursao"
     }
     
     private void analisaExpressaoSimples(){
@@ -531,8 +625,8 @@ public class AnalisadorSintatico {
             indice = analisadorSemantico.pesquisa_tabela(token.getLexema());
             if(indice >= 0){
                 //System.out.println("analisadorSemantico.buscaTipoFuncao(token.getLexema() " + analisadorSemantico.buscaTipoFuncao(token.getLexema()));
-                if(analisadorSemantico.buscaTipoFuncao(indice) == "booleano" ||
-                   analisadorSemantico.buscaTipoFuncao(indice) == "inteiro"){
+                if("inteiro".equals(analisadorSemantico.buscaTipoFuncao(indice)) ||
+                   "booleano".equals(analisadorSemantico.buscaTipoFuncao(indice))){
                    analisaChamadaDeFuncao();
                 }else{
                     getToken(); 
@@ -540,7 +634,6 @@ public class AnalisadorSintatico {
                 
             }else{
                 trataErro("Identificador nao definido");
-                return;
             }
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~            
         }else if ("snumero".equals(token.getSimbolo())){
@@ -567,8 +660,14 @@ public class AnalisadorSintatico {
         getToken();
     }
     
-    private void chamadaProcedimento(){  
-        //Verifcar se identificador eh do tipo procedimento
+    private void chamadaProcedimento(){
+        //verificar se é variavel
+        //se for
+        //  Verifcar se identificador eh do tipo procedimento
+        //      se nao for "Erro, variavel nao eh procedimento"
+        //senao erro "variavel nao declarada"
+        
+        //Ou procedimento nao declarado e ja era
         //????getToken();
     }
     
@@ -598,7 +697,7 @@ public class AnalisadorSintatico {
         retorno = analisaExpressaoRetorno();
         
         if(retorno == -1){
-            token.setLinha(token.getLinha()-1);
+            //token.setLinha(token.getLinha()-1);
             trataErro("Expressao com tipos difentes");
         }else if(retorno != compararTipoRetorno){
             trataErro("Atribuicao com tipos difentes");

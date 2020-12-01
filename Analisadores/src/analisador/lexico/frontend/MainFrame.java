@@ -14,6 +14,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import analisador.lexico.backend.Facade;
 import analisador.lexico.backend.Token;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -144,6 +147,8 @@ public class MainFrame extends javax.swing.JFrame {
         }
         catch(java.lang.NullPointerException e){
             System.err.printf("Caminho do arquivo nao selecionao!\n");
+        } catch (IOException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         TabelaPrint.getColumnModel().getColumn(0).setPreferredWidth(1);

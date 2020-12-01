@@ -252,11 +252,11 @@ public class AnalisadorSemantico {
         expressaoTipos.add(6);
         expressaoTipos.add(5);
         */ 
-        print(expressaoTipos); 
+        //print(expressaoTipos); 
         //Se encontrar 3 operandos avanca uma posicao
         int op1, op2, op3;
         while(expressaoTipos.size() >= 3){
-            print(expressaoTipos);   
+            //print(expressaoTipos);   
             
             op1 = expressaoTipos.get(i);
             op2 = expressaoTipos.get(i+1);
@@ -490,11 +490,12 @@ public class AnalisadorSemantico {
             }
         }
         
+        /*
         for(int i = 0; i < expressaoPosFixa.size(); i++){
             System.out.print(expressaoPosFixa.get(i));
-        }
-        
+        }        
         System.out.println("");
+        */
         
         return expressaoPosFixa;
     }
@@ -508,7 +509,7 @@ public class AnalisadorSemantico {
             x=1;
         }
         
-        /*
+
         while(x>0){
             return true;
         }
@@ -516,10 +517,10 @@ public class AnalisadorSemantico {
         if (x==0){
             return true;
         }else
-            return true;
-        */
-        //return true;
-        
+            //return true;
+
+        return true;
+        /*
         if (x>2){
             return true;
         }else if(x<=2){
@@ -534,7 +535,7 @@ public class AnalisadorSemantico {
             //return true;
         }else          
             return true;
-        
+        */
         //return true;
     }
 }

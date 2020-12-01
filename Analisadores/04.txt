@@ -12,7 +12,7 @@ inicio
   se x>1  entao
       x:= 0;
   leia(b) ;
-  enquanto (a <= 89) e (a<= 1000)  {condicao de parada}
+  enquanto (x < (10+25*a)) e ((c*15)>30) {condicao de parada}
   faca inicio
            a:= x+z
        fim;
@@ -22,11 +22,11 @@ fim;
 funcao f1:inteiro;
 inicio
   leia(a);
-    {se f1 > (u+ c*a)
+    se f1 > (u+ c*a)
     entao f1:= 2
     senao se f1 > (u+ c*a)
-		entao f1:= 2
-		senao f1:= -1;}
+		entao f1:= 2;
+		{senao f1:= -1;}
 	a:= x+z;	
   f1:= -1+(-2+8+3)*2+1*2
   
@@ -49,5 +49,22 @@ inicio
 fim.
 
 {fim} 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  
  

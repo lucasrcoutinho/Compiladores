@@ -6,6 +6,7 @@
 package analisador.lexico.backend;
 
 import analisador.sintatico.AnalisadorSintatico;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -31,7 +32,7 @@ public class Facade {
 
     
     //Provisorio para testar o sintatico, não pode ficar assim!!!
-    public void chamaSintatico(String caminho){
+    public void chamaSintatico(String caminho) throws IOException{
         sintatico.inicioSintatico(caminho);        
     }
     
