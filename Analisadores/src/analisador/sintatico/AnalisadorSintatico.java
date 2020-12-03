@@ -26,6 +26,8 @@ public class AnalisadorSintatico {
     int linhaErro = -1;
     int linhaErroSintatico=-1;
     int rotulo = 1;
+    int totalVariaveisAlocadas = 0;
+    int quantidadeVarParaAlocar = 1;//Aqui e 1 pra allocar a posicao 0 para retorno de funcao
     String mensagemErro;
     String descricaoErroLexico;
     String caminhoArquivoFonte;
@@ -33,7 +35,8 @@ public class AnalisadorSintatico {
     AnalisadorSemantico analisadorSemantico;
     boolean flagRetornoOk = false;
     boolean flagVerificaRetorno = false;
-    boolean erro = false;
+    boolean erro = false;    
+
     
     public void inicioSintatico(String caminho) throws IOException{
         erro = false;
@@ -54,9 +57,6 @@ public class AnalisadorSintatico {
     }
     
     private void analisadorSintatico(){
-        //++++++++++++++++++++++++++++
-        //rotulo = 0
-        //++++++++++++++++++++++++++++
         getToken();
         if ("sprograma".equals(token.getSimbolo())){
             getToken();
@@ -76,6 +76,10 @@ public class AnalisadorSintatico {
                    if ("sponto".equals(token.getSimbolo())){                       
                        getToken();
                        if ("".equals(token.getSimbolo())){//Confirmar esta opcao
+                           //+++++++++++++++++++++++++++++++++++++++++++++++++++
+                           //Gera HLT
+                           System.out.println("HLT");
+                           //+++++++++++++++++++++++++++++++++++++++++++++++++++
                            //System.out.println("Sucesso");
                            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                            //analisadorSemantico.imprimeTabelaSimbolos();
@@ -91,57 +95,49 @@ public class AnalisadorSintatico {
     }
     
     private void analisaBloco(){
+        int bkpVariaveisAlocadas, bkpVariaveisParaAlocadar ;
         getToken();
-        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        //Gera label NULL, se nao for programa
-        //System.out.println("L" + rotulo +" NULL");
-        //rotulo++;
-        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        analisaEtVariaveis();
+        analisaEtVariaveis();        
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //Gera ALLOC 0,quantidade de var
-        System.out.println("ALLOC");
+        System.out.println("ALLOC " + totalVariaveisAlocadas + "," + quantidadeVarParaAlocar);
+        bkpVariaveisAlocadas = totalVariaveisAlocadas;//Salva quantidade atual para desalocar
+        bkpVariaveisParaAlocadar = quantidadeVarParaAlocar;
+        totalVariaveisAlocadas += quantidadeVarParaAlocar;
+        quantidadeVarParaAlocar = 0;
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        //analisadorSemantico.imprimeTabelaSimbolos();
         analisaSubRotina();//Aqui checa retorno de funcao na declaracao!
-        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        //gera rotulo L NULL
-        //System.out.println("L" +rotulo+ " NULL");
-        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         analisaComandos();
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //Gera DALLOC 0,quantidade de var
-        System.out.println("DALLOC");
-        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        System.out.println("DALLOC " + bkpVariaveisAlocadas + "," + bkpVariaveisParaAlocadar);
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
     }
-    
+   
     private void analisaEtVariaveis(){
         if ("svar".equals(token.getSimbolo())){
             getToken();
-            if ("sidentificador".equals(token.getSimbolo())){
-
+            if ("sidentificador".equals(token.getSimbolo())){                
                 while("sidentificador".equals(token.getSimbolo())){
                     analisaVariaveis();
                     if ("sponto_virgula".equals(token.getSimbolo())){
                         getToken();                        
                     }else{
                         trataErro("Esperado pontovirgula"); 
-                        return;
                     }  
                 }
             }else trataErro("Esperado indentificador");  
         }
     }
     
-    private void analisaVariaveis(){ 
+    private void analisaVariaveis(){
         do{
             if ("sidentificador".equals(token.getSimbolo())){
                 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 if(analisadorSemantico.pesquisa_duplicvar_tabela(token.getLexema())){
                     trataErro("Variavel ja declarada");
-                    return;
                 }
-                analisadorSemantico.insere_tabela(token.getLexema(), "tipoVariavel", "", -1);
+                analisadorSemantico.insere_tabela(token.getLexema(), "tipoVariavel", "",quantidadeVarParaAlocar + totalVariaveisAlocadas);
                 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 getToken();
                 if ("svirgula".equals(token.getSimbolo()) || "sdoispontos".equals(token.getSimbolo())){
@@ -151,15 +147,15 @@ public class AnalisadorSintatico {
                     }
                 }else{
                     trataErro("Esperado virgula ou doispontos");
-                    return;
                 }
             }else{
                 trataErro("Esperado identificador");
-                return;
             }
+            quantidadeVarParaAlocar++;
         }while (!"sdoispontos".equals(token.getSimbolo() /*!=*/));
         getToken();
         analisaTipo();
+        
     }
     
     private void analisaTipo(){
@@ -204,6 +200,10 @@ public class AnalisadorSintatico {
             // Se flagRetornoOk == false então erro
             // Não encontrou um retorno
             if(flagVerificaRetorno){
+                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                //Gera STR 0
+                System.out.println("STR 0");
+                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 if(!flagRetornoOk){
                     trataErro("Retorno nao encontrado");
                 }
@@ -219,11 +219,10 @@ public class AnalisadorSintatico {
                 //**************************************************************
                 //  O valor de retorno ou expressao tem que ter o mesmo tipo da funcao 
                 //  se token.getLexema == (getProcCorrente)
+                //      Então analisa atribuição e se tiver mais codigo depois = erro
                 if(token.getLexema().equals(analisadorSemantico.getProcCorrente())){
                     flagRetornoOk = true;
                 }
-                //  Então analisa atribuição e 
-                //  se tiver mais codigo depois = erro
                 //**************************************************************
                 analisaAtribChProcedimento();
                 break;
@@ -259,21 +258,7 @@ public class AnalisadorSintatico {
                         trataErro("Funcao nao declarada");
                         return;
                 }
-            }//******************************************************************
-            /*else{
-            //******************************************************************
-            //com o retorno de funcao ativado
-            //Verificar se o token anterior eh funcao 
-                if(flagVerificaRetorno){
-                    if(!analisadorSemantico.pesquisa_declvar_tabela(bkpToken.getLexema())){
-                        trataErro("Tentativa de atribuicao a nao variavel");
-                    }else if(!analisadorSemantico.pesquisa_declfunc_tabela(bkpToken.getLexema())){
-                        trataErro("Funcao nao declarada");
-                        return;
-                    }
-                }
-            }*/
-            //******************************************************************
+            }
             analisaAtribuicao(bkpToken);
         }else{
             //******************************************************************
@@ -284,17 +269,17 @@ public class AnalisadorSintatico {
                 trataErro("Funcao usada sem considerar o valor de retorno");                
             }
             //******************************************************************
-            //Verificar se o token anterior eh procedimento
+            //Verifica se o token anterior eh procedimento
             if(!analisadorSemantico.pesquisa_declproc_tabela(bkpToken.getLexema())){
                 trataErro("Procedimento nao declarado");
                 return;
-            }
-            
-            chamadaProcedimento(/*token anterior*/);
+            }            
+            chamadaProcedimento(bkpToken);
         } 
     }
     
     private void analisaLeia(){//So pode ler inteiros
+        int indice;
         getToken();
         if ("sabre_parenteses".equals(token.getSimbolo())){
             getToken();
@@ -308,8 +293,9 @@ public class AnalisadorSintatico {
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 //gera RD
                 System.out.println("RD");
-                //gera STR
-                System.out.println("STR");
+                //gera STR                
+                indice = analisadorSemantico.pesquisa_tabela(token.getLexema());
+                System.out.println("STR " + analisadorSemantico.buscaMemoriaRotulo(indice));
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 getToken();
                 if ("sfecha_parenteses".equals(token.getSimbolo())){
@@ -320,6 +306,7 @@ public class AnalisadorSintatico {
     }
     
     private void analisaEscreva(){
+        int indice;
         getToken();
         if ("sabre_parenteses".equals(token.getSimbolo())){
             getToken();
@@ -332,7 +319,8 @@ public class AnalisadorSintatico {
                 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 //gera LDV
-                System.out.println("LDV");
+                indice = analisadorSemantico.pesquisa_tabela(token.getLexema());
+                System.out.println("LDV " + analisadorSemantico.buscaMemoriaRotulo(indice));
                 //gera PRN
                 System.out.println("PRN");
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -346,11 +334,14 @@ public class AnalisadorSintatico {
     
     private void analisaEnquanto(){
         int retorno;
+        int auxRot;
         getToken();
-        //----------------------------------------------------------------------
-        
+    //--------------------------------------------------------------------------        
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //Gera Lx NULL
+        auxRot=rotulo;
+        System.out.println("L" +rotulo+" NULL");
+        rotulo++;
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++        
         retorno = analisaExpressaoRetorno(); 
         if(retorno == -1){
@@ -360,17 +351,21 @@ public class AnalisadorSintatico {
             token.setLinha(token.getLinha()-1);
             trataErro("Expressao nao booleana");
         }
-        //----------------------------------------------------------------------
+    //--------------------------------------------------------------------------
         
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //Gera JUMPF Ly
+        System.out.println("JMPF L" + rotulo);
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++        
         if ("sfaca".equals(token.getSimbolo())){       
             getToken();
             analisaComandoSimples();            
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             //gera JMP Lx
+            System.out.println("JMP L" + auxRot);
             //Gera Ly NULL
+            System.out.println("L" +rotulo+ " NULL");
+            rotulo++;
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             
             //******************************************************************
@@ -383,18 +378,18 @@ public class AnalisadorSintatico {
     }     
     
     private void analisaSe(){
-        int retorno;
+        int retorno, auxRot1;
         boolean backupflagRetornoOk = false;
         getToken();
         //----------------------------------------------------------------------
         //analisaExpressaoRetorno();//retorno 
         retorno = analisaExpressaoRetorno();        
         if(retorno == -1){
-            token.setLinha(token.getLinha()-1);
+            //token.setLinha(token.getLinha()-1);
             trataErro("Expressao com tipos difentes");
             return;
         }else if(retorno != 0){
-            token.setLinha(token.getLinha()-1);
+            //token.setLinha(token.getLinha()-1);
             trataErro("Expressao nao booleana");
             return;
         }
@@ -404,7 +399,9 @@ public class AnalisadorSintatico {
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             //Gera comparacao(Topo da pilha)
             //Gera JMPF L1
-            System.out.println("JMPF L");
+            auxRot1 = rotulo;
+            System.out.println("JMPF L" + rotulo);
+            rotulo++;
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++            
             getToken();
             analisaComandoSimples();            
@@ -417,18 +414,19 @@ public class AnalisadorSintatico {
             if ("ssenao".equals(token.getSimbolo())){                
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             //Gera JMP L2
-                System.out.println("JMP L");
+                System.out.println("JMP L" + rotulo);
             //Gera label L1
-                System.out.println("L NULL");
+                System.out.println("L" +auxRot1+ " NULL");
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++            
                 getToken();
                 analisaComandoSimples();                
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             //Gera label L2
-            System.out.println("L NULL");
+            System.out.println("L" +rotulo+ " NULL");
             }else{           
             //Gera label L1
-            System.out.println("L NULL");
+            System.out.println("L" +auxRot1+ " NULL");
+            rotulo++;
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++             
             }
         }else trataErro("Esperado palavra reservada entao");        
@@ -472,16 +470,11 @@ public class AnalisadorSintatico {
         }
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //se flag = 1 entao Gera(auxrot,NULL,´ ´,´ ´) {início do principal}
-        if(flag == 1) System.out.println("L" + auxrot + "NULL");
+        if(flag == 1) System.out.println("L" + auxrot + " NULL");
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     }
     
     private void analisaDeclaracaoProcedimento(){
-        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        //gera label NULL para chamada de funcao/proc
-        System.out.println("L" +rotulo+ " NULL");
-        rotulo++;
-        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         getToken();
         if ("sidentificador".equals(token.getSimbolo())){            
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -489,7 +482,12 @@ public class AnalisadorSintatico {
                 trataErro("Procedimento ja declarado");
                 return;
             }else{
-                analisadorSemantico.insere_tabela(token.getLexema(), "tipoProcedimento", "L", -1);
+                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                //gera label NULL para chamada de funcao/proc
+                System.out.println("L" +rotulo+ " NULL");
+                analisadorSemantico.insere_tabela(token.getLexema(), "tipoProcedimento", "L", rotulo);
+                rotulo++;
+                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             }
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~            
             getToken();
@@ -500,14 +498,14 @@ public class AnalisadorSintatico {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         analisadorSemantico.desempilha();        
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //Gera RETURN
+        System.out.println("RETURN");
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     }
     
-    private void analisaDeclaracaoFuncao(){//BO*********************************
-        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        //gera label NULL para chamada de funcao/proc
-        System.out.println("L" +rotulo+ " NULL");
-        rotulo++;
-        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    private void analisaDeclaracaoFuncao(){
         getToken();
         if ("sidentificador".equals(token.getSimbolo())){            
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -515,7 +513,13 @@ public class AnalisadorSintatico {
                 trataErro("Funcao ja declarada");
                 return;
             }else{
-                analisadorSemantico.insere_tabela(token.getLexema(), "tipoFuncao", "L", -1);
+                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                //gera label NULL para chamada de funcao/proc
+                System.out.println("L" +rotulo+ " NULL");
+                analisadorSemantico.insere_tabela(token.getLexema(), "tipoFuncao", "L", rotulo);
+                rotulo++;
+                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
             }
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~            
             getToken();
@@ -539,6 +543,10 @@ public class AnalisadorSintatico {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         analisadorSemantico.desempilha();
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //Gera RETURN
+        System.out.println("RETURN");
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     }
     
     //--------------------------------------------------------------------------
@@ -546,11 +554,13 @@ public class AnalisadorSintatico {
     private int analisaExpressaoRetorno(){
         expressao.clear();        
         analisaExpressao();//Gera a expressao original
-        ArrayList<String> exprecaoPosFixa =  new ArrayList();
+        ArrayList<Token> exprecaoPosFixa;
         //System.out.println("Expressao original: ");
         //imprimeExpressao(expressao);
         exprecaoPosFixa = analisadorSemantico.convertePosFixa(expressao);
-
+        if(exprecaoPosFixa.isEmpty()){
+            trataErro("Procedimento nao retorna valores");
+        }        
         //analisadorSemantico.convertePosFixa(expressao);
         /*
         if(analisadorSemantico.compatibilizacaoTipos(exprecaoPosFixa)<0){
@@ -561,6 +571,14 @@ public class AnalisadorSintatico {
         */
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //Gera expressao
+        for(int i=0 ; i< exprecaoPosFixa.size(); i++){
+            if(exprecaoPosFixa.get(i).getLinha() < 0){
+                System.out.println(exprecaoPosFixa.get(i).getSimbolo());
+            }else{
+                System.out.println(exprecaoPosFixa.get(i).getSimbolo() + " " +
+                        exprecaoPosFixa.get(i).getLinha());
+            }
+        }
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         return analisadorSemantico.compatibilizacaoTipos(exprecaoPosFixa);//Retorna o tipo da expressao -1-erro 0-Bool 1-int     
     }
@@ -575,7 +593,7 @@ public class AnalisadorSintatico {
                 token.getSimbolo().equals("smaiorig") ||
                 token.getSimbolo().equals("sig")){
             //------------------------------------------------------------------
-            expressao.add(new Token(token.getSimbolo(), token.getLexema(), 0));
+            expressao.add(new Token(token.getLexema(), token.getSimbolo(), 0));
             //------------------------------------------------------------------
             getToken();
             analisaExpressaoSimples();
@@ -586,7 +604,7 @@ public class AnalisadorSintatico {
     private void analisaExpressaoSimples(){
         if ("smais".equals(token.getSimbolo()) || "smenos".equals(token.getSimbolo())){
             //------------------------------------------------------------------
-            expressao.add(new Token(token.getSimbolo(), token.getLexema(), 0));
+            expressao.add(new Token(token.getLexema(), token.getSimbolo(), 0));;
             //------------------------------------------------------------------
             getToken();
         }
@@ -595,7 +613,7 @@ public class AnalisadorSintatico {
                 "smais".equals(token.getSimbolo()) ||
                 "sou".equals(token.getSimbolo())){
             //------------------------------------------------------------------
-            expressao.add(new Token(token.getSimbolo(), token.getLexema(), 0));
+            expressao.add(new Token(token.getLexema(), token.getSimbolo(), 0));;
             //------------------------------------------------------------------
             getToken();
             analisaTermo();
@@ -608,7 +626,7 @@ public class AnalisadorSintatico {
                 "sdiv".equals(token.getSimbolo()) ||
                 "se".equals(token.getSimbolo())){
             //------------------------------------------------------------------
-            expressao.add(new Token(token.getSimbolo(), token.getLexema(), 0));
+            expressao.add(new Token(token.getLexema(), token.getSimbolo(), 0));;
             //------------------------------------------------------------------
             getToken();
             analisaFator();
@@ -618,16 +636,16 @@ public class AnalisadorSintatico {
     private void analisaFator(){
         int indice;
         //----------------------------------------------------------------------
-        expressao.add(new Token(token.getSimbolo(), token.getLexema(), 0));
+        expressao.add(new Token(token.getLexema(), token.getSimbolo(), 0));;
         //----------------------------------------------------------------------
         if ("sidentificador".equals(token.getSimbolo())){
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             indice = analisadorSemantico.pesquisa_tabela(token.getLexema());
             if(indice >= 0){
-                //System.out.println("analisadorSemantico.buscaTipoFuncao(token.getLexema() " + analisadorSemantico.buscaTipoFuncao(token.getLexema()));
-                if("inteiro".equals(analisadorSemantico.buscaTipoFuncao(indice)) ||
-                   "booleano".equals(analisadorSemantico.buscaTipoFuncao(indice))){
-                   analisaChamadaDeFuncao();
+                if(analisadorSemantico.pesquisa_declfunc_tabela(token.getLexema()) &&
+                   ("inteiro".equals(analisadorSemantico.buscaTipo(indice)) ||
+                   "booleano".equals(analisadorSemantico.buscaTipo(indice)))){
+                   analisaChamadaDeFuncao(indice);
                 }else{
                     getToken(); 
                 }
@@ -646,7 +664,7 @@ public class AnalisadorSintatico {
             analisaExpressao();
             if ("sfecha_parenteses".equals(token.getSimbolo())){
                 //--------------------------------------------------------------
-                expressao.add(new Token(token.getSimbolo(), token.getLexema(), 0));
+                expressao.add(new Token(token.getLexema(), token.getSimbolo(), 0));;
                 //--------------------------------------------------------------
                 getToken();
             }else trataErro("Esperado fecha parentese");
@@ -655,12 +673,17 @@ public class AnalisadorSintatico {
         }else trataErro("Esperado identficador, numero, parentese ou valor booleano");
     }
     
-    private void analisaChamadaDeFuncao(){
+    private void analisaChamadaDeFuncao(int indice){
         //System.out.println("Entrou no analisaChamadaDeFuncao");
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //Gera CALL 
+        //System.out.println("CALL " + analisadorSemantico.buscaMemoriaRotulo(indice));
+        //System.out.println("LDV 0");
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         getToken();
     }
     
-    private void chamadaProcedimento(){
+    private void chamadaProcedimento(Token tokenAnterior){
         //verificar se é variavel
         //se for
         //  Verifcar se identificador eh do tipo procedimento
@@ -669,37 +692,45 @@ public class AnalisadorSintatico {
         
         //Ou procedimento nao declarado e ja era
         //????getToken();
+        int indice;
+        indice = analisadorSemantico.pesquisa_tabela(tokenAnterior.getLexema());
+        System.out.println("CALL L" + analisadorSemantico.buscaMemoriaRotulo(indice));
     }
     
     
     //b:= a*a+(c div b) exemplo de atribuição
-    private void analisaAtribuicao(Token tokenAnterior){
+    private void analisaAtribuicao(Token tokenAnterior){        
         getToken();
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         int indice;
         String tipo;
-        int compararTipoRetorno = -1;
-        int retorno;        
+        int tipoVariavel = -1;
+        int tipoExpressao;
+
         indice = analisadorSemantico.pesquisa_tabela(tokenAnterior.getLexema());
         if(indice >= 0){
-            tipo = analisadorSemantico.buscaTipoFuncao(indice);
+            tipo = analisadorSemantico.buscaTipo(indice);
             if("inteiro".equals(tipo)){
-                compararTipoRetorno = 1;
+                tipoVariavel = 1;
             }else if("booleano".equals(tipo)){
-                compararTipoRetorno = 0;
+                tipoVariavel = 0;
             }else{
-                trataErro("Variavel de atribuicao nao eh int ou bool");
+                trataErro("Variavel de atribuicao nao e int ou bool");
             }
         }else{
             trataErro("Variavel nao declrada");
         }
+
+        tipoExpressao = analisaExpressaoRetorno();
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //Gera STR
+        System.out.println("STR " + analisadorSemantico.buscaMemoriaRotulo(indice));
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         
-        retorno = analisaExpressaoRetorno();
-        
-        if(retorno == -1){
+        if(tipoExpressao == -1){
             //token.setLinha(token.getLinha()-1);
             trataErro("Expressao com tipos difentes");
-        }else if(retorno != compararTipoRetorno){
+        }else if(tipoExpressao != tipoVariavel){
             trataErro("Atribuicao com tipos difentes");
         }
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

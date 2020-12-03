@@ -31,7 +31,8 @@ public class Simbolo {
     public void addInfo(String lex, String tipoLex, String nivel, int rotulo){
         lexema = lex;
         tipoLexema = tipoLex;
-        nivelEscopo = nivel; 
+        nivelEscopo = nivel;
+        memoria = rotulo;        
     }
     
     public void setLexema(String lex){
@@ -73,7 +74,7 @@ public class Simbolo {
         return nivelEscopo;
     }
     
-    public int getMemoria(){
+    public int getMemoriaRotulo(){
         return memoria;
     }
     

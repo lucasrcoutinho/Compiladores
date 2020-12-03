@@ -1,15 +1,18 @@
 programa teste; {*Teste OK*}
-var x,a,b,c,z:inteiro;
+var x,a,b,c:inteiro;
+	  z:booleano;
 inicio
- x:=1;
- a:=2;
- b:=3;
- c:=7;
- z:=1;
- se (x < (10+25*a)) e ((c*15)>30)
- entao escreva(x)
- senao escreva(a)
+ z:= verdadeiro;
 fim.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  
  
  

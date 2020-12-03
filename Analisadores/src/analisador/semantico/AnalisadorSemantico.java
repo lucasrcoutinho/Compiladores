@@ -6,8 +6,6 @@
 package analisador.semantico;
 
 import analisador.lexico.backend.Token;
-import analisador.semantico.Simbolo;
-import java.awt.List;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -17,7 +15,7 @@ import java.util.Stack;
  */
 
 public class AnalisadorSemantico {
-    private ArrayList<Simbolo> tabelaDeSimbolos;
+    private final ArrayList<Simbolo> tabelaDeSimbolos;
     //private int nivelEscopo;
     
     public AnalisadorSemantico(){    
@@ -33,7 +31,7 @@ public class AnalisadorSemantico {
             System.out.print("Nome: " + tabelaDeSimbolos.get(i).getLexema());
             System.out.print("| Tipo: " + tabelaDeSimbolos.get(i).getTipoLexema());
             System.out.print("| Nivel: " + tabelaDeSimbolos.get(i).getNivelEscopo());
-            if(tabelaDeSimbolos.get(i).getTipo() != ""){
+            if(!"".equals(tabelaDeSimbolos.get(i).getTipo())){
                 System.out.print("| Tipo: " + tabelaDeSimbolos.get(i).getTipo());
             }
             //if(tabelaDeSimbolos.get(i).getProcedimentoCorrente() == true){
@@ -49,67 +47,29 @@ public class AnalisadorSemantico {
         var.addInfo(lexema, tipoLexema, nivel, rotulo);
         tabelaDeSimbolos.add(var);
     }
-    /*
-    public void insere_SubRotina_tabela(String lexema, String tipoLexema,int nivel, int rotulo){
-        Simbolo subRotina = new Simbolo();
-        subRotina.addInfo(lexema, tipoLexema, nivel, rotulo);
-        desmarcaProcCorrente();
-        subRotina.setProcedimentoCorrente(true);//Marca atual como corrente
-        tabelaDeSimbolos.add(subRotina);
-    }
-    
-    
-    public void coloca_tipo_funcao(String lexemaTipoFuncao){
-        int i = tabelaDeSimbolos.size()-1; 
-        tabelaDeSimbolos.get(i).setTipo(lexemaTipoFuncao);
-    }
-    */
-    
+
     public void coloca_tipo(String lexemaTipoVar){  
         int i = tabelaDeSimbolos.size()-1;
         
-        if(tabelaDeSimbolos.get(i).getNivelEscopo() == "L" &&
-           tabelaDeSimbolos.get(i).getTipo() == ""){
+        if("L".equals(tabelaDeSimbolos.get(i).getNivelEscopo()) &&
+                "".equals(tabelaDeSimbolos.get(i).getTipo())){
             tabelaDeSimbolos.get(i).setTipo(lexemaTipoVar);
         }else 
-        while(i > 0 && tabelaDeSimbolos.get(i).getNivelEscopo() == "" && 
-                       tabelaDeSimbolos.get(i).getTipo() == ""){
+        while(i > 0 && "".equals(tabelaDeSimbolos.get(i).getNivelEscopo()) && 
+                "".equals(tabelaDeSimbolos.get(i).getTipo())){
             tabelaDeSimbolos.get(i).setTipo(lexemaTipoVar);
             i--;
         }          
     }
-    
-    /*
-    private void desmarcaProcCorrente(){
-        if(tabelaDeSimbolos.size() == 0) return;
-        int i = tabelaDeSimbolos.size()-1;        
-        while(!tabelaDeSimbolos.get(i).getProcedimentoCorrente() && i >= 0){
-            i--;
-        }
-        tabelaDeSimbolos.get(i).setProcedimentoCorrente(false);
-    }
 
-    private void marcaProcAnterior(){    
-        int i = tabelaDeSimbolos.size()-1;
-        
-        while(!tabelaDeSimbolos.get(i).getProcedimentoCorrente() && i > 0 &&
-               tabelaDeSimbolos.get(i).getTipoLexema() != "tipoVariavel"){
-            i--;
-        }
-        tabelaDeSimbolos.get(i).setProcedimentoCorrente(true);
-    }*/
-    
-    //Metodo Remove (recolhe nivel) da tabela de simbolos
-    //#################Problema quando desempilhar e tiver um proc ou fuc desempilhado#############################
-    //#################Esse proc ou func vai ser marcado como anterior########################
     public void desempilha(){       
         int i = tabelaDeSimbolos.size()-1;
         
-        while(tabelaDeSimbolos.get(i).getNivelEscopo() != "L" && i > 0){
+        while(!"L".equals(tabelaDeSimbolos.get(i).getNivelEscopo()) && i > 0){
             tabelaDeSimbolos.remove(i);
             i--;
         }
-        if (tabelaDeSimbolos.get(i).getTipoLexema() != "tipoPrograma"){
+        if (!"tipoPrograma".equals(tabelaDeSimbolos.get(i).getTipoLexema())){
             tabelaDeSimbolos.get(i).setNivelEscopo("");
         }
     }
@@ -117,7 +77,7 @@ public class AnalisadorSemantico {
     public String getProcCorrente(){
         int i = tabelaDeSimbolos.size()-1;
         
-        while(tabelaDeSimbolos.get(i).getNivelEscopo() != "L" && i > 0){
+        while(!"L".equals(tabelaDeSimbolos.get(i).getNivelEscopo()) && i > 0){
              i--;
              if(i == 0){
                  return "";
@@ -139,15 +99,15 @@ public class AnalisadorSemantico {
         
         while(i >= 0){      
             if (nivelAtual == true){//Se estiver no mesmo nivel
-                if(tabelaDeSimbolos.get(i).getNivelEscopo() == "L"){
+                if("L".equals(tabelaDeSimbolos.get(i).getNivelEscopo())){
                     nivelAtual = false;
                 }
                 if(lexema.equals(tabelaDeSimbolos.get(i).getLexema())){//E encontrou duplicidade
                     return true;
                 }
             }else{//Esta em outro nivel
-                if(tabelaDeSimbolos.get(i).getTipoLexema() != "tipoVariavel"){//Não compara mais com variaveis
-                    if(lexema == tabelaDeSimbolos.get(i).getLexema()){//E encontrou duplicidade
+                if(!"tipoVariavel".equals(tabelaDeSimbolos.get(i).getTipoLexema())){//Não compara mais com variaveis
+                    if(lexema.equals(tabelaDeSimbolos.get(i).getLexema())){//E encontrou duplicidade
                         return true;
                     }
                 }
@@ -161,7 +121,7 @@ public class AnalisadorSemantico {
         int i = tabelaDeSimbolos.size()-1;
         while(i >= 0){
             if ((lexema.equals(tabelaDeSimbolos.get(i).getLexema())) &&
-                tabelaDeSimbolos.get(i).getTipoLexema() == "tipoVariavel"){//E encontrou duplicidade
+                    "tipoVariavel".equals(tabelaDeSimbolos.get(i).getTipoLexema())){//E encontrou duplicidade
                 return true;
             }
             i--;
@@ -173,8 +133,8 @@ public class AnalisadorSemantico {
         int i = tabelaDeSimbolos.size()-1;
         while(i >= 0){
             if (lexema.equals(tabelaDeSimbolos.get(i).getLexema()) &&
-                (tabelaDeSimbolos.get(i).getTipoLexema() == "tipoFuncao" ||
-                 tabelaDeSimbolos.get(i).getTipoLexema() == "tipoVariavel" )){
+                ("tipoFuncao".equals(tabelaDeSimbolos.get(i).getTipoLexema()) ||
+                    "tipoVariavel".equals(tabelaDeSimbolos.get(i).getTipoLexema()) )){
                 return true;
             }
             i--;
@@ -186,7 +146,7 @@ public class AnalisadorSemantico {
         int i = tabelaDeSimbolos.size()-1;
         while(i >= 0){
             if (lexema.equals(tabelaDeSimbolos.get(i).getLexema()) &&
-                tabelaDeSimbolos.get(i).getTipoLexema() == "tipoProcedimento"){
+                    "tipoProcedimento".equals(tabelaDeSimbolos.get(i).getTipoLexema())){
                 return true;
             }
             i--;
@@ -198,7 +158,7 @@ public class AnalisadorSemantico {
         int i = tabelaDeSimbolos.size()-1;
         while(i >= 0){
             if (lexema.equals(tabelaDeSimbolos.get(i).getLexema()) &&
-                tabelaDeSimbolos.get(i).getTipoLexema() == "tipoFuncao"){
+                    "tipoFuncao".equals(tabelaDeSimbolos.get(i).getTipoLexema())){
                 return true;
             }
             i--;
@@ -217,8 +177,12 @@ public class AnalisadorSemantico {
         return -1;
     }
     
-    public String buscaTipoFuncao(int lexema){
-        return tabelaDeSimbolos.get(lexema).getTipo();
+    public String buscaTipo(int indice){
+        return tabelaDeSimbolos.get(indice).getTipo();
+    }
+    
+    public int buscaMemoriaRotulo(int indice){
+        return tabelaDeSimbolos.get(indice).getMemoriaRotulo();
     }
 
     public int compatibilizacaoTipos(ArrayList expressaoPosFixa){
@@ -234,25 +198,11 @@ public class AnalisadorSemantico {
         int inteiro = 1;    //numero ouvariavel //Converter para constante
         int booleano = 0;   //booleano          //Converter para constante       
         
-        ArrayList<Integer> expressaoTipos = new ArrayList();//Necessario ArrayList para deletar elemento
+        ArrayList<Integer> expressaoTipos;//Necessario ArrayList para deletar elemento
         expressaoTipos = geraTabelaDeTipos(expressaoPosFixa);
-        /*
-        expressaoTipos.add(1);
-        expressaoTipos.add(3);
-        expressaoTipos.add(1);
-        expressaoTipos.add(1);
-        expressaoTipos.add(6);
-        expressaoTipos.add(6);
-        expressaoTipos.add(1);
-        expressaoTipos.add(1);
-        expressaoTipos.add(6);
-        expressaoTipos.add(1);
-        expressaoTipos.add(6);
-        expressaoTipos.add(1);
-        expressaoTipos.add(6);
-        expressaoTipos.add(5);
-        */ 
-        //print(expressaoTipos); 
+
+        //print(expressaoTipos);
+        
         //Se encontrar 3 operandos avanca uma posicao
         int op1, op2, op3;
         while(expressaoTipos.size() >= 3){
@@ -263,74 +213,56 @@ public class AnalisadorSemantico {
             op3 = expressaoTipos.get(i+2);
             
             if(op1 == inteiro && op2 == uAritmetico){
-                //System.out.println("Inteiro aritmetico");
                 expressaoTipos.set(i+1, inteiro);
                 expressaoTipos.remove(i);
                 i=0;
-                //continue;
             }else if(op1 == booleano && op2 == negacao){
-                //System.out.println("booleano unario(Not)");
                 expressaoTipos.set(i+1, booleano);
                 expressaoTipos.remove(i);
                 i=0;
-                //continue;
-            }else if(op1<2 && op2<2 && (op3<2 || op3 == 3)){
+            }else if(op1<2 && op2<2 && op3 <= 3){
+                //Se op1 e op2 != de numeros e op3 diferente de numero e unarios
+                //Avanca indice das comparacoes
                 //System.out.println("Tres operandos");
                 i++;
-                //continue;
             }else if(op1 == inteiro && op2 == inteiro && op3 == aritmeticos){
-                //System.out.println("Inteiro aritmetico");
                 expressaoTipos.set(i+2, inteiro);
                 expressaoTipos.remove(i);
                 expressaoTipos.remove(i);
                 i=0;
-                //continue;
             }else if(op1 == inteiro && op2 == inteiro && op3 == relacionais){
-                //System.out.println("Inteiro relacionais");
                 expressaoTipos.set(i+2, booleano);
                 expressaoTipos.remove(i);
                 expressaoTipos.remove(i);
                 i=0;
-                //continue;
             }else if(op1 == booleano && op2 == booleano && op3 == comparacao){
-                //System.out.println("Boolearno comparacao");
                 expressaoTipos.set(i+2, booleano);
                 expressaoTipos.remove(i);
                 expressaoTipos.remove(i);
                 i=0;
-                //continue;
             }else if(op1 == booleano && op2 == booleano && op3 == eOu){
-                //System.out.println("Boolearno comparacao");
                 expressaoTipos.set(i+2, booleano);
                 expressaoTipos.remove(i);
                 expressaoTipos.remove(i);
                 i=0;
-                //continue;
             }else if(op1 == inteiro && op2 == inteiro && op3 == comparacao){
-                //System.out.println("Boolearno comparacao");
                 expressaoTipos.set(i+2, booleano);
                 expressaoTipos.remove(i);
                 expressaoTipos.remove(i);
                 i=0;
-                //continue;
-            }else return -1;
+            }else return -10;
         } 
         
         if(expressaoTipos.size() == 2){
-            System.out.println("Verifica unario");
             op1 = expressaoTipos.get(i);
             op2 = expressaoTipos.get(i+1);
             
             if(op1 == inteiro && op2 == uAritmetico){
-                //System.out.println("Inteiro aritmetico");
                 expressaoTipos.set(i+1, inteiro);
                 expressaoTipos.remove(i); 
-                //continue;
             }else if(op1 == booleano && op2 == negacao){
-                //System.out.println("booleano unario(Not)");
                 expressaoTipos.set(i+1, booleano);
                 expressaoTipos.remove(i);
-                //continue;
             }
         }
         
@@ -345,17 +277,14 @@ public class AnalisadorSemantico {
         return -1;
     }
     
-    //ab+c+d*12*+
-    private ArrayList geraTabelaDeTipos(ArrayList<String> expressaoPosFixa){
+    private ArrayList geraTabelaDeTipos(ArrayList<Token> expressaoPosFixa){
         int i=0;
         int index;
         String t;
-        ArrayList<Integer> tabelaDeTipos = new ArrayList();        
-        
-        
+        ArrayList<Integer> tabelaDeTipos = new ArrayList(); 
         
         while(i<expressaoPosFixa.size()){            
-            t = expressaoPosFixa.get(i);
+            t = expressaoPosFixa.get(i).getLexema();
             if("e".equals(t)|| "ou".equals(t)){
                 tabelaDeTipos.add(7);
             }else if("+".equals(t) || "-".equals(t) || "*".equals(t) || "div".equals(t)){
@@ -371,12 +300,13 @@ public class AnalisadorSemantico {
             }else{
 
                 index = pesquisa_tabela(t);                
-                if(index>0 && tabelaDeSimbolos.get(index).getTipo() == "inteiro"){
+                if(index>0 && "inteiro".equals(tabelaDeSimbolos.get(index).getTipo())){
                     tabelaDeTipos.add(1);
-                }else if(index>0 && tabelaDeSimbolos.get(index).getTipo() == "booleano"){
+                }else if(index>0 && "booleano".equals(tabelaDeSimbolos.get(index).getTipo())){
                     tabelaDeTipos.add(0);
                 }else if ("verdadeiro".equals(t) || "falso".equals(t)){//Eh pra ter sobrado apenas numero
                     tabelaDeTipos.add(0);
+                }else if(" ".equals(t)){////////////////////////////////////////
                 }else{//Eh pra ter sobrado so numero
                     tabelaDeTipos.add(1);
                 }          
@@ -384,78 +314,133 @@ public class AnalisadorSemantico {
             i++;          
         }
         return tabelaDeTipos;
-    }   
-    
+    }  
     private void print(ArrayList expressaoTipos){
-
             for(int j = 0; j < expressaoTipos.size(); j++){
                 System.out.print(expressaoTipos.get(j) + " ");
             }
         System.out.println("");
-    }
-    
+    }    
     private class OperadorPrecedecia{
         public int preced;
         public String operador;
-        public OperadorPrecedecia(int p, String o){
+        public String codigoVM;
+        public OperadorPrecedecia(int p, String o, String cod){
             preced = p;
             operador = o;
+            codigoVM = cod;
         }
-    }
+    } 
+    
     
     public ArrayList convertePosFixa(ArrayList<Token> expressao){
         //!!!!!!!!!!!VERIFICAR UNARIO DEPOIS DE PARENTESES!!!!!!!!!!!!!!!!!!!!!!
-        ArrayList<String> expressaoPosFixa =  new ArrayList();  
+        ArrayList<Token> expressaoPosFixa =  new ArrayList();  
         Stack<OperadorPrecedecia> pilha = new Stack();
-        String lexeamaTemp;
+        String lexeamaTemp, codigoVM = "";
         boolean podeOperadorUnario = true;//Proximo operador pode ser unario
         int valorPrecedencia = 0;
-        
+        int indice;
+
         while(expressao.size()>0){
-            lexeamaTemp = expressao.get(0).getLexema();
+            lexeamaTemp = expressao.get(0).getSimbolo();
             
-            if(lexeamaTemp == "snumero" || 
-               lexeamaTemp == "sidentificador" ||
-               lexeamaTemp == "sbooleano"){
-               expressaoPosFixa.add(expressao.get(0).getSimbolo());
-               //Tem que buscar o tipo na tabela de simbolos
-               expressao.remove(0);
-               podeOperadorUnario = false;
-               continue;
-            }else if(lexeamaTemp == "sou"){
+            if("snumero".equals(lexeamaTemp) || 
+                    "sidentificador".equals(lexeamaTemp) ||
+                    "sverdadeiro".equals(lexeamaTemp) ||
+                    "sfalso".equals(lexeamaTemp) ){
+                
+                if ("sidentificador".equals(lexeamaTemp)){
+                    indice = pesquisa_tabela(expressao.get(0).getLexema());
+                    if(pesquisa_declfunc_tabela(expressao.get(0).getLexema())){
+                        expressaoPosFixa.add(new Token(expressao.get(0).getLexema(),
+                        "CALL", tabelaDeSimbolos.get(indice).getMemoriaRotulo()));
+                        ////////////////////////////////////////////////////////
+                        expressaoPosFixa.add(new Token(" ","LDV 0", -1));
+                        ////////////////////////////////////////////////////////
+                    }else if(!pesquisa_declproc_tabela(expressao.get(0).getLexema())){
+                        expressaoPosFixa.add(new Token(expressao.get(0).getLexema(),
+                        "LDV", tabelaDeSimbolos.get(indice).getMemoriaRotulo()));
+                    }else{
+                        expressaoPosFixa.clear();//Se econtrou proc na expressoa = erro
+                        return expressaoPosFixa;
+                    }                
+                }else if("sverdadeiro".equals(lexeamaTemp)){
+                    expressaoPosFixa.add(new Token(expressao.get(0).getLexema(),
+                    "LDC", 1));
+                }else if("sfalso".equals(lexeamaTemp)){
+                    expressaoPosFixa.add(new Token(expressao.get(0).getLexema(),
+                    "LDC", 0));
+                }else if("snumero".equals(lexeamaTemp)){
+                    expressaoPosFixa.add(new Token(expressao.get(0).getLexema(), 
+                    "LDC", Integer.parseInt(expressao.get(0).getLexema()))); 
+                }       
+               
+                expressao.remove(0);
+                podeOperadorUnario = false;
+                continue;
+               
+            }else if("sou".equals(lexeamaTemp)){
                 valorPrecedencia = 1;
-            }else if(lexeamaTemp == "se"){//And!
+                codigoVM = "OR";
+            }else if("se".equals(lexeamaTemp)){//And!
                 valorPrecedencia = 2;
-            }else if(lexeamaTemp == "sig" ||
-                     lexeamaTemp == "sdif"){
+                codigoVM = "AND";
+            }else if("sig".equals(lexeamaTemp)){
                 valorPrecedencia = 3;
-            }else if (lexeamaTemp == "smaior" ||
-                      lexeamaTemp == "smaiorig" ||                      
-                      lexeamaTemp == "smenor" ||
-                      lexeamaTemp == "smenorig"){
+                codigoVM = "CEQ";
+            }else if("sdif".equals(lexeamaTemp)){
+                valorPrecedencia = 3;
+                codigoVM = "CDIF";
+            }else if("smaior".equals(lexeamaTemp)){
                 valorPrecedencia = 4;
-            }else if(lexeamaTemp == "smenos" ||
-                     lexeamaTemp == "smais"){
+                codigoVM = "CMA";
+            }else if("smaiorig".equals(lexeamaTemp)){
+                valorPrecedencia = 4;
+                codigoVM = "CMAQ";
+            }else if("smenor".equals(lexeamaTemp)){
+                valorPrecedencia = 4;
+                codigoVM = "CME";
+            }else if("smenorig".equals(lexeamaTemp)){
+                valorPrecedencia = 4;        
+                codigoVM = "CMEQ";
+                
+                
+            }else if("smenos".equals(lexeamaTemp) ||
+                    "smais".equals(lexeamaTemp)){
                 if(podeOperadorUnario){
+                    if("smenos".equals(lexeamaTemp)){
+                        codigoVM = "INV";
+                    }                    
+                    expressao.get(0).setLexema(expressao.get(0).getLexema() + " ");
                     valorPrecedencia = 7;//Unario
-                    expressao.get(0).setSimbolo(expressao.get(0).getSimbolo() + " ");
                 }else{
+                    if("smenos".equals(lexeamaTemp)){
+                        codigoVM = "SUB";
+                    }else{
+                        codigoVM = "ADD";
+                    }
                     valorPrecedencia = 5;
                 }
-            }else if(lexeamaTemp == "smult" ||
-                     lexeamaTemp == "sdiv"){
+            }else if("smult".equals(lexeamaTemp)){
                 valorPrecedencia = 6;
-            }else if(lexeamaTemp == "snao" ){
+                codigoVM = "MULT";
+            }else if("sdiv".equals(lexeamaTemp)){
+                valorPrecedencia = 6;
+                codigoVM = "DIV";
+            }else if("snao".equals(lexeamaTemp) ){
                 valorPrecedencia = 7;
-            }else if(lexeamaTemp == "sabre_parenteses"){                
+                codigoVM = "NEG";
+            }else if("sabre_parenteses".equals(lexeamaTemp)){                
                 valorPrecedencia = 8;//sempre insere na pilha
-            }else if(lexeamaTemp == "sfecha_parenteses"){
+            }else if("sfecha_parenteses".equals(lexeamaTemp)){
                 if (pilha.size() > 0){
-                    while (pilha.lastElement().operador != "("){
-                        if(pilha.lastElement().operador == ")"){
+                    while (!"(".equals(pilha.lastElement().operador)){
+                        if(")".equals(pilha.lastElement().operador)){
                             pilha.pop();
                         }else{
-                            expressaoPosFixa.add(pilha.pop().operador);
+                            expressaoPosFixa.add(new Token(pilha.lastElement().operador,pilha.lastElement().codigoVM,-1));
+                            pilha.pop();
                         }
                     }
                     pilha.pop();
@@ -466,13 +451,14 @@ public class AnalisadorSemantico {
            
             while(pilha.size()>0 && pilha.lastElement().preced >= valorPrecedencia
                                  && pilha.lastElement().preced != 8){
-                if(pilha.lastElement().operador == ")"){
+                if(")".equals(pilha.lastElement().operador)){
                     pilha.pop();
                 }else{
-                    expressaoPosFixa.add(pilha.pop().operador);
+                    expressaoPosFixa.add(new Token(pilha.lastElement().operador,pilha.lastElement().codigoVM,-1));
+                    pilha.pop();
                 }                
             }
-            pilha.add(new OperadorPrecedecia(valorPrecedencia, expressao.get(0).getSimbolo()));
+            pilha.add(new OperadorPrecedecia(valorPrecedencia, expressao.get(0).getLexema(), codigoVM));
             expressao.remove(0);
             
             if(valorPrecedencia == 8 || valorPrecedencia == 4){
@@ -482,17 +468,18 @@ public class AnalisadorSemantico {
             }            
         }
         
-        while(expressao.size()==0 && pilha.size()>0){
-            if(pilha.lastElement().operador == ")"){
+        while(expressao.isEmpty() && pilha.size()>0){
+            if(")".equals(pilha.lastElement().operador)){
                 pilha.pop(); 
             }else{
-                expressaoPosFixa.add(pilha.pop().operador);
+                expressaoPosFixa.add(new Token(pilha.lastElement().operador,pilha.lastElement().codigoVM,-1));
+                pilha.pop();
             }
         }
         
         /*
         for(int i = 0; i < expressaoPosFixa.size(); i++){
-            System.out.print(expressaoPosFixa.get(i));
+            System.out.print(expressaoPosFixa.get(i).getLexema());
         }        
         System.out.println("");
         */
@@ -520,22 +507,5 @@ public class AnalisadorSemantico {
             //return true;
 
         return true;
-        /*
-        if (x>2){
-            return true;
-        }else if(x<=2){
-            return false;
-        }else if (x == x+1){
-            
-            if (x == 2*x){
-                return true;
-            }else
-                return true;
-            
-            //return true;
-        }else          
-            return true;
-        */
-        //return true;
     }
 }
