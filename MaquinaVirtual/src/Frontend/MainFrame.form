@@ -63,19 +63,21 @@
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="botaoDiretorio" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Group type="102" attributes="0">
-                          <Component id="debugCheckBox" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                      </Group>
                       <Group type="102" alignment="1" attributes="0">
-                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="jScrollPane2" pref="150" max="32767" attributes="0"/>
-                              <Component id="btnContinuar" max="32767" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="103" alignment="0" groupAlignment="0" max="-2" attributes="0">
+                                  <Component id="jScrollPane2" pref="150" max="32767" attributes="0"/>
+                                  <Component id="btnContinuar" max="32767" attributes="0"/>
+                              </Group>
+                              <Component id="debugCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
-                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="botaoExecutar" alignment="1" max="32767" attributes="0"/>
-                              <Component id="jScrollPane1" alignment="1" pref="150" max="32767" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="passoAPassoCheckBox" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                  <Component id="botaoExecutar" alignment="1" max="32767" attributes="0"/>
+                                  <Component id="jScrollPane1" alignment="1" pref="150" max="32767" attributes="0"/>
+                              </Group>
                           </Group>
                       </Group>
                   </Group>
@@ -97,7 +99,10 @@
                       <Component id="jScrollPane2" min="-2" pref="520" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
-                  <Component id="debugCheckBox" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="debugCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="passoAPassoCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                       <Component id="botaoExecutar" pref="67" max="32767" attributes="0"/>
@@ -220,6 +225,11 @@
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnContinuarActionPerformed"/>
           </Events>
+        </Component>
+        <Component class="javax.swing.JCheckBox" name="passoAPassoCheckBox">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Passo a passo"/>
+          </Properties>
         </Component>
       </SubComponents>
     </Container>

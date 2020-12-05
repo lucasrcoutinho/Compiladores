@@ -22,7 +22,7 @@ public class Maquina{
         pilhaPrograma.insereDado(null);
     }
 
-    public void executaInstrucoes(boolean debug, int parada) throws InterruptedException {
+    public void executaInstrucoes(boolean debug, boolean passoAPasso, int parada) throws InterruptedException {
         Facede instanciaFacede = Facede.getInstance();
         double num1 = 0;
         double num2 = 0;
@@ -31,7 +31,7 @@ public class Maquina{
         int m;
 
         String[] mn;
-        
+        System.out.println("=============================" + passoAPasso);
         boolean hlt = false;
         
         String input;
@@ -41,10 +41,10 @@ public class Maquina{
 
         while (!hlt) {
 
-            while(debug && reg_i == parada)
+            while(debug && reg_i == parada || passoAPasso)
             {
                 Thread.sleep(100);
-                if(instanciaFacede.verificaContinuacaoExe())
+                if(instanciaFacede.verificaContinuacaoExe(passoAPasso))
                 {
                     break;
                 }
@@ -310,6 +310,7 @@ public class Maquina{
                     System.out.println("Var X: " + pilhaDados.lePilha(0));
                     System.out.println("Var Y: " + pilhaDados.lePilha(1));
                     System.out.println("Var Z: " + pilhaDados.lePilha(2));
+                    System.out.println("Topo Pilha: " + pilhaDados.lePilha(reg_s).intValue());
                     System.out.println("==========DEBUG==========");
 
                 default:
@@ -334,5 +335,10 @@ public class Maquina{
     private void atualizaMainFrame() {
         Facede instanciaFacede = Facede.getInstance();
         instanciaFacede.atualizaTabelas();
+    }
+    
+    public int getReg_i()
+    {
+        return reg_i;
     }
 }

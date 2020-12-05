@@ -16,6 +16,7 @@ public class Facede {
 
     private boolean continuar = false;
     private boolean debug;
+    private boolean passoAPasso;
     private int parada;
     private ArrayList<String> input = new ArrayList();
 
@@ -29,8 +30,10 @@ public class Facede {
         return instancia;
     }
 
-    public void executaProg(boolean debug, int parada) {
+    public void executaProg(boolean debug, boolean passoAPasso, int parada) {
+        System.out.println("=============================" + passoAPasso);
         this.debug = debug;
+        this.passoAPasso = passoAPasso;
         this.parada = parada;
 
         new MaquinaThread().start();
@@ -67,8 +70,18 @@ public class Facede {
         continuar = true;
     }
 
-    public boolean verificaContinuacaoExe() {
-        return continuar;
+    public boolean verificaContinuacaoExe(boolean passoAPasso) {
+        boolean continuar = this.continuar;
+        
+        if(passoAPasso)
+        {
+            this.continuar = false;
+            return continuar;
+        }
+        else
+        {
+            return continuar;
+        }  
     }
 
     public void escritaDeDados(String dado) {
@@ -98,11 +111,16 @@ public class Facede {
         }
     }
     
+    public int getLinhaExe()
+    {
+        return maquina.getReg_i();
+    }
+    
     public class MaquinaThread extends Thread{
         public void run()
         {
             try {
-                maquina.executaInstrucoes(debug, parada);
+                maquina.executaInstrucoes(debug, passoAPasso, parada);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Facede.class.getName()).log(Level.SEVERE, null, ex);
             }

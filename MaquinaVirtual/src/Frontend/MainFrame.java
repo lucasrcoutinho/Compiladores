@@ -3,6 +3,7 @@ package Frontend;
 import Backend.Facede;
 import Backend.PilhaDados;
 import Backend.PilhaPrograma;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -49,6 +50,7 @@ public class MainFrame extends javax.swing.JFrame {
         debugCheckBox = new javax.swing.JCheckBox();
         botaoExecutar = new javax.swing.JButton();
         btnContinuar = new javax.swing.JButton();
+        passoAPassoCheckBox = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         entradaDados = new java.awt.TextArea();
         saidaDados = new java.awt.TextArea();
@@ -115,6 +117,8 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        passoAPassoCheckBox.setText("Passo a passo");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -126,17 +130,18 @@ public class MainFrame extends javax.swing.JFrame {
                         .addComponent(diretorioTexto, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
                         .addComponent(botaoDiretorio))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(debugCheckBox)
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
-                            .addComponent(btnContinuar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                                .addComponent(btnContinuar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(debugCheckBox))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(botaoExecutar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE))))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(passoAPassoCheckBox)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(botaoExecutar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -151,7 +156,9 @@ public class MainFrame extends javax.swing.JFrame {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 520, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 520, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(debugCheckBox)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(debugCheckBox)
+                    .addComponent(passoAPassoCheckBox))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(botaoExecutar, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE)
@@ -266,7 +273,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         String pathAux = fileChooser.getSelectedFile().getAbsolutePath();
 
-        limpaDados();
+        limpaDadosArq();
 
         diretorioTexto.setText(fileChooser.getSelectedFile().getAbsolutePath());
 
@@ -282,8 +289,11 @@ public class MainFrame extends javax.swing.JFrame {
 
         int linhaDeParada = areaCodigo.getSelectedRow();
         boolean debug = debugCheckBox.isSelected();
+        boolean passoapasso = passoAPassoCheckBox.isSelected();
+        
+        limpaDadosExec();
 
-        facadeInstancia.executaProg(debug, linhaDeParada);
+        facadeInstancia.executaProg(debug, passoapasso, linhaDeParada);
     }//GEN-LAST:event_botaoExecutarActionPerformed
 
     private void btnContinuarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnContinuarActionPerformed
@@ -330,8 +340,18 @@ public class MainFrame extends javax.swing.JFrame {
         attPilhaPrograma();
         attPilhaDados();
     }
+    
+    private void limpaDadosExec() {
+        javax.swing.table.DefaultTableModel modeloProg = (javax.swing.table.DefaultTableModel) tabelaPrograma.getModel();
+        modeloProg.setNumRows(0);
 
-    private void limpaDados() {
+        javax.swing.table.DefaultTableModel modeloMem = (javax.swing.table.DefaultTableModel) tabelaMemoria.getModel();
+        modeloMem.setNumRows(0);
+
+        facadeInstancia.reiniciaInstancias();
+    }
+
+    private void limpaDadosArq() {
         javax.swing.table.DefaultTableModel modeloProg = (javax.swing.table.DefaultTableModel) tabelaPrograma.getModel();
         modeloProg.setNumRows(0);
 
@@ -376,7 +396,7 @@ public class MainFrame extends javax.swing.JFrame {
                 }
 
                 for (int i = 0; i < pilha.size(); i++) {
-                    modeloDados.addRow(new Object[]{pilha.get(i)});
+                    modeloDados.addRow(new Object[]{i, pilha.get(i)});
                 }
             }
 
@@ -412,8 +432,13 @@ public class MainFrame extends javax.swing.JFrame {
                 }
 
                 for (int i = 0; i < pilha.size(); i++) {
-                    modeloProg.addRow(new Object[]{pilha.get(i)});
+                    modeloProg.addRow(new Object[]{i, pilha.get(i)});
                 }
+                
+                int linha = facadeInstancia.getLinhaExe();
+                
+                tabelaPrograma.setRowSelectionInterval(linha-1, linha-1);
+                tabelaPrograma.setSelectionBackground(Color.red);
             }
 
         };
@@ -438,6 +463,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JCheckBox passoAPassoCheckBox;
     private java.awt.TextArea saidaDados;
     private javax.swing.JTable tabelaMemoria;
     private javax.swing.JTable tabelaPrograma;
