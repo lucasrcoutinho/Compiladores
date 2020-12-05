@@ -3,6 +3,7 @@ package Frontend;
 import Backend.Facede;
 import java.util.ArrayList;
 import javax.swing.JFileChooser;
+import javax.swing.table.DefaultTableModel;
 
 public class MainFrame extends javax.swing.JFrame {
 
@@ -10,7 +11,6 @@ public class MainFrame extends javax.swing.JFrame {
     private Facede facadeInstancia;
     
     private MainFrame() {
-
         facadeInstancia = Facede.getInstance();
         initComponents();
     }
@@ -43,6 +43,7 @@ public class MainFrame extends javax.swing.JFrame {
         tabelaMemoria = new javax.swing.JTable();
         debugCheckBox = new javax.swing.JCheckBox();
         botaoExecutar = new javax.swing.JButton();
+        btnContinuar = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         entradaDados = new java.awt.TextArea();
         saidaDados = new java.awt.TextArea();
@@ -102,6 +103,13 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        btnContinuar.setText("Continuar");
+        btnContinuar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnContinuarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -109,18 +117,21 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(botaoExecutar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(diretorioTexto)
+                        .addComponent(diretorioTexto, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
                         .addComponent(botaoDiretorio))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(debugCheckBox)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                            .addComponent(btnContinuar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(botaoExecutar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -137,7 +148,9 @@ public class MainFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(debugCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(botaoExecutar, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(botaoExecutar, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE)
+                    .addComponent(btnContinuar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -244,6 +257,10 @@ public class MainFrame extends javax.swing.JFrame {
         fileChooser.setDialogTitle("Escolha o Arquivo");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.showOpenDialog(this);
+        
+        String pathAux = fileChooser.getSelectedFile().getAbsolutePath();
+        
+        limpaDados();
       
         diretorioTexto.setText(fileChooser.getSelectedFile().getAbsolutePath());
         
@@ -257,8 +274,16 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_botaoDiretorioActionPerformed
 
     private void botaoExecutarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoExecutarActionPerformed
-        facadeInstancia.executaProg(false, 0);
+       
+        int linhaDeParada = areaCodigo.getSelectedRow();
+        boolean debug = debugCheckBox.isSelected();
+
+        facadeInstancia.executaProg(debug, linhaDeParada);
     }//GEN-LAST:event_botaoExecutarActionPerformed
+
+    private void btnContinuarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnContinuarActionPerformed
+        //facadeInstancia.cotinuaExecucao();
+    }//GEN-LAST:event_btnContinuarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -307,21 +332,19 @@ public class MainFrame extends javax.swing.JFrame {
         pilhaDados = facadeInstancia.obtemPilhaDados();
         pilhaPrograma = facadeInstancia.obtemPilhaPrograma();
         
+        
         //
         //Tabela de progema
         //
         javax.swing.table.DefaultTableModel modeloProg = (javax.swing.table.DefaultTableModel) tabelaPrograma.getModel();
         
         //Limpando a tabela antes de inserir os dados
-        if(tabelaPrograma.getRowCount() > 0)
-        {
-            tabelaPrograma.removeRowSelectionInterval(0, tabelaPrograma.getRowCount() - 1);
-        }
-        
+         modeloProg.setNumRows(0);
+
         //Inserindo os dados
         for(i = 0; i<pilhaPrograma.size(); i++)
         {
-            modeloProg.addRow(new Object[]{pilhaPrograma.get(i)});
+            //modeloProg.addRow(new Object[]{pilhaPrograma.get(i)});
         }
         
         
@@ -331,18 +354,32 @@ public class MainFrame extends javax.swing.JFrame {
         javax.swing.table.DefaultTableModel modeloMem = (javax.swing.table.DefaultTableModel) tabelaMemoria.getModel();
         
         //Limpando a tabela antes de atualizar os dados
-        if(tabelaMemoria.getRowCount() > 0)
-        {
-            tabelaMemoria.removeRowSelectionInterval(0, tabelaMemoria.getRowCount() - 1);
-        }
-        
+        modeloMem.setRowCount(0);
+       
         //Inserindo os dados
         for(i = 0; i<pilhaDados.size(); i++)
         {
             modeloMem.addRow(new Object[]{pilhaDados.get(i)});
         }
+    }
+    
+    private void limpaDados()
+    {       
+        javax.swing.table.DefaultTableModel modeloProg = (javax.swing.table.DefaultTableModel) tabelaPrograma.getModel();
+        modeloProg.setNumRows(0);
         
-      
+        javax.swing.table.DefaultTableModel modeloMem = (javax.swing.table.DefaultTableModel) tabelaMemoria.getModel();
+        modeloMem.setNumRows(0);
+        
+        javax.swing.table.DefaultTableModel modeloCod = (javax.swing.table.DefaultTableModel) areaCodigo.getModel();
+        modeloCod.setNumRows(0);
+        
+        facadeInstancia.reiniciaInstancias();
+    }
+    
+    public void escrita_out(String dado)
+    {
+        saidaDados.append(dado + "\n");
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -350,6 +387,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JTable areaCodigo;
     private javax.swing.JButton botaoDiretorio;
     private javax.swing.JButton botaoExecutar;
+    private javax.swing.JButton btnContinuar;
     private javax.swing.JCheckBox debugCheckBox;
     private javax.swing.JTextField diretorioTexto;
     private java.awt.TextArea entradaDados;
