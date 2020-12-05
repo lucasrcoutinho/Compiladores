@@ -2,6 +2,8 @@ package Backend;
 
 import Frontend.MainFrame;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 
 public class Facede {
@@ -15,6 +17,7 @@ public class Facede {
     private boolean continuar = false;
     private boolean debug;
     private int parada;
+    private ArrayList<String> input = new ArrayList();
 
     private Facede() {
     }
@@ -29,10 +32,8 @@ public class Facede {
     public void executaProg(boolean debug, int parada) {
         this.debug = debug;
         this.parada = parada;
-        MainFrame instanciaMainFrame = MainFrame.getInstance();
-        //maquina.executaInstrucoes(debug, parada);
-        //start();
-        //new MaquinaThread().start();
+
+        new MaquinaThread().start();
     }
 
     public ArrayList obtemArquivo(String caminho) {
@@ -63,7 +64,7 @@ public class Facede {
     }
 
     public void cotinuaExecucao() {
-        this.continuar = continuar;
+        continuar = true;
     }
 
     public boolean verificaContinuacaoExe() {
@@ -75,23 +76,36 @@ public class Facede {
         instanciaMainFrame.escrita_out(dado);
     }
 
-    public class MaquinaThread extends Thread{
-        public void run()
+    public void insereInput(String dado)
+    {
+        System.out.println(dado);
+        input.add(dado);
+    }
+    
+    public String leInput()
+    {
+        String aux;
+        
+        if(input.size() == 0)
         {
-            maquina.executaInstrucoes(debug, parada);
+            return null;
+        }
+        else
+        {
+            aux = input.get(0);
+            input.remove(0);
+            return aux;
         }
     }
     
-    private void start() {
-        SwingWorker worker = new SwingWorker() {
-            @Override
-            protected Void doInBackground() throws Exception {
-                
+    public class MaquinaThread extends Thread{
+        public void run()
+        {
+            try {
                 maquina.executaInstrucoes(debug, parada);
-                return null;
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Facede.class.getName()).log(Level.SEVERE, null, ex);
             }
-        };
-
-        worker.execute();
+        }
     }
 }

@@ -22,39 +22,34 @@ public class Maquina{
         pilhaPrograma.insereDado(null);
     }
 
-    public void executaInstrucoes(boolean debug, int parada) {
+    public void executaInstrucoes(boolean debug, int parada) throws InterruptedException {
         Facede instanciaFacede = Facede.getInstance();
         double num1 = 0;
         double num2 = 0;
-        String[] mn;
+        
         int n;
         int m;
 
+        String[] mn;
+        
+        boolean hlt = false;
+        
+        String input;
         String linha = pilhaPrograma.lePilha(reg_i);
         String[] instrucao = linha.split(" "); //pos 0 = instrucao, pos 1 = atriuto
         System.out.println(instrucao[0]);
 
-        while (true) {
+        while (!hlt) {
 
-            /*while(debug && reg_i == parada)
+            while(debug && reg_i == parada)
             {
+                Thread.sleep(100);
                 if(instanciaFacede.verificaContinuacaoExe())
                 {
                     break;
                 }
             }
-            /*if (debug && reg_i == parada) 
-            {
-                new Thread() {
-                    @Override
-                    public void run() {
-                        while (!instanciaFacede.verificaContinuacaoExe()) {
-
-                        }
-                    }
-                }.start();
-            }*/
-
+            
             switch (instrucao[0]) {
                 case "LDC":
                     reg_s++;
@@ -214,7 +209,7 @@ public class Maquina{
                     break;
 
                 case "HLT":
-                    debug = true;
+                    hlt =true;
                     break;
 
                 case "STR":
@@ -243,14 +238,23 @@ public class Maquina{
 
                 case "RD":
                     reg_s++;
-                    num1 = scan.nextInt();
+                    do
+                    {
+                        Thread.sleep(100);
+                        input = instanciaFacede.leInput();
+                        if(input != null)
+                        {
+                            num1 = Double.parseDouble(input);
+                        }
+                        
+                    }while(input == null);
+ 
                     pilhaDados.insereDado(num1, reg_s);
                     break;
 
                 case "PRN":
                     num1 = pilhaDados.lePilha(reg_s);
                     instanciaFacede.escritaDeDados(Double.toString(num1));
-                    System.out.println(num1);  //!!!!!!!!!!!!!!!!!!!Implementar
                     reg_s--;
                     break;
 
@@ -323,6 +327,8 @@ public class Maquina{
                 System.out.println(instrucao[0].toString());
             }
         }
+        
+        instanciaFacede.escritaDeDados("---Programa Finalizado com Sucesso!---");
     }
 
     private void atualizaMainFrame() {

@@ -1,27 +1,32 @@
 package Frontend;
 
 import Backend.Facede;
+import Backend.PilhaDados;
+import Backend.PilhaPrograma;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
 public class MainFrame extends javax.swing.JFrame {
 
     private static MainFrame instancia;
     private Facede facadeInstancia;
-    
+
     private MainFrame() {
         facadeInstancia = Facede.getInstance();
         initComponents();
     }
-    
-    public static MainFrame getInstance()
-    {
-        if(instancia == null)
-        {
+
+    public static MainFrame getInstance() {
+        if (instancia == null) {
             instancia = new MainFrame();
         }
-        
+
         return instancia;
     }
 
@@ -240,11 +245,12 @@ public class MainFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void Ok_btnActionPerformed(java.awt.event.ActionEvent evt)
-    {
-        
+    private void Ok_btnActionPerformed(java.awt.event.ActionEvent evt) {
+        String dado = entradaDados.getText();
+        entradaDados.setText("");
+        facadeInstancia.insereInput(dado);
     }
-    
+
     private void diretorioTextoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_diretorioTextoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_diretorioTextoActionPerformed
@@ -252,29 +258,28 @@ public class MainFrame extends javax.swing.JFrame {
     private void botaoDiretorioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoDiretorioActionPerformed
         // TODO add your handling code here:
         JFileChooser fileChooser = new JFileChooser();
-        
+
         fileChooser.setCurrentDirectory(new java.io.File("."));
         fileChooser.setDialogTitle("Escolha o Arquivo");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.showOpenDialog(this);
-        
+
         String pathAux = fileChooser.getSelectedFile().getAbsolutePath();
-        
+
         limpaDados();
-      
+
         diretorioTexto.setText(fileChooser.getSelectedFile().getAbsolutePath());
-        
+
         ArrayList<String> dadoArquivo = new ArrayList<>();
         dadoArquivo = facadeInstancia.obtemArquivo(fileChooser.getSelectedFile().getAbsolutePath());
         javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) areaCodigo.getModel();
-        for(int i = 0; i<dadoArquivo.size(); i++)
-        {
+        for (int i = 0; i < dadoArquivo.size(); i++) {
             modelo.addRow(new Object[]{dadoArquivo.get(i)});
         }
     }//GEN-LAST:event_botaoDiretorioActionPerformed
 
     private void botaoExecutarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoExecutarActionPerformed
-       
+
         int linhaDeParada = areaCodigo.getSelectedRow();
         boolean debug = debugCheckBox.isSelected();
 
@@ -282,7 +287,7 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_botaoExecutarActionPerformed
 
     private void btnContinuarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnContinuarActionPerformed
-        //facadeInstancia.cotinuaExecucao();
+        facadeInstancia.cotinuaExecucao();
     }//GEN-LAST:event_btnContinuarActionPerformed
 
     /**
@@ -320,67 +325,102 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
     }
-    
-    public void atualizaPilhas()
-    {
-        ArrayList<Double> pilhaDados = new ArrayList<>();
-        ArrayList<String> pilhaPrograma = new ArrayList<>();
-        
-        int i;
-        
-        //Obtendo as instancias ja criadas na Máquina
-        pilhaDados = facadeInstancia.obtemPilhaDados();
-        pilhaPrograma = facadeInstancia.obtemPilhaPrograma();
-        
-        
-        //
-        //Tabela de progema
-        //
-        javax.swing.table.DefaultTableModel modeloProg = (javax.swing.table.DefaultTableModel) tabelaPrograma.getModel();
-        
-        //Limpando a tabela antes de inserir os dados
-         modeloProg.setNumRows(0);
 
-        //Inserindo os dados
-        for(i = 0; i<pilhaPrograma.size(); i++)
-        {
-            //modeloProg.addRow(new Object[]{pilhaPrograma.get(i)});
-        }
-        
-        
-        //
-        //Tabela de dados
-        //
-        javax.swing.table.DefaultTableModel modeloMem = (javax.swing.table.DefaultTableModel) tabelaMemoria.getModel();
-        
-        //Limpando a tabela antes de atualizar os dados
-        modeloMem.setRowCount(0);
-       
-        //Inserindo os dados
-        for(i = 0; i<pilhaDados.size(); i++)
-        {
-            modeloMem.addRow(new Object[]{pilhaDados.get(i)});
-        }
+    public synchronized void atualizaPilhas() {
+        attPilhaPrograma();
+        attPilhaDados();
     }
-    
-    private void limpaDados()
-    {       
+
+    private void limpaDados() {
         javax.swing.table.DefaultTableModel modeloProg = (javax.swing.table.DefaultTableModel) tabelaPrograma.getModel();
         modeloProg.setNumRows(0);
-        
+
         javax.swing.table.DefaultTableModel modeloMem = (javax.swing.table.DefaultTableModel) tabelaMemoria.getModel();
         modeloMem.setNumRows(0);
-        
+
         javax.swing.table.DefaultTableModel modeloCod = (javax.swing.table.DefaultTableModel) areaCodigo.getModel();
         modeloCod.setNumRows(0);
-        
+
         facadeInstancia.reiniciaInstancias();
     }
-    
-    public void escrita_out(String dado)
-    {
+
+    public void escrita_out(String dado) {
         saidaDados.append(dado + "\n");
     }
+
+    private void attPilhaDados() {
+        SwingWorker<ArrayList<String>, Void> worker = new SwingWorker<ArrayList<String>, Void>() {
+            @Override
+            protected ArrayList<String> doInBackground() throws Exception {
+                ArrayList<String> pilhaDados = new ArrayList<>();
+
+                //Obtendo as instancias ja criadas na Máquina
+                pilhaDados = facadeInstancia.obtemPilhaDados();
+
+                return pilhaDados;
+            }
+
+            @Override
+            protected void done() {
+                ArrayList<String> pilha = new ArrayList<>();
+                javax.swing.table.DefaultTableModel modeloDados = (javax.swing.table.DefaultTableModel) tabelaMemoria.getModel();
+                
+                modeloDados.setNumRows(0);
+                
+                try {
+                    pilha = get();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                for (int i = 0; i < pilha.size(); i++) {
+                    modeloDados.addRow(new Object[]{pilha.get(i)});
+                }
+            }
+
+        };
+
+        worker.execute();
+    }
+
+    private void attPilhaPrograma() {
+        SwingWorker<ArrayList<String>, Void> worker = new SwingWorker<ArrayList<String>, Void>() {
+            @Override
+            protected ArrayList<String> doInBackground() throws Exception {
+                ArrayList<String> pilhaPrograma = new ArrayList<>();
+
+                //Obtendo as instancias ja criadas na Máquina
+                pilhaPrograma = facadeInstancia.obtemPilhaPrograma();
+
+                return pilhaPrograma;
+            }
+
+            @Override
+            protected void done() {
+                ArrayList<String> pilha = new ArrayList<>();
+                javax.swing.table.DefaultTableModel modeloProg = (javax.swing.table.DefaultTableModel) tabelaPrograma.getModel();
+                modeloProg.setNumRows(0);
+                        
+                try {
+                    pilha = get();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                for (int i = 0; i < pilha.size(); i++) {
+                    modeloProg.addRow(new Object[]{pilha.get(i)});
+                }
+            }
+
+        };
+
+        worker.execute();
+    }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Ok_btn;
