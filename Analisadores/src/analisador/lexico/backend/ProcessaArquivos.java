@@ -14,9 +14,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
@@ -30,6 +28,9 @@ public class ProcessaArquivos {
 
     public ProcessaArquivos(){
         indice = 0;
+    }
+    public ProcessaArquivos(String modo){
+
     }
 
     public ArrayList getPrograma(String caminho){          
@@ -61,17 +62,16 @@ public class ProcessaArquivos {
     }
     
     public void salvarCodigo(String codigoFonte, String caminho){
-Writer writer = null;
-
-try {
-    writer = new BufferedWriter(new OutputStreamWriter(
-          new FileOutputStream(caminho), "utf-8"));
-    writer.write(codigoFonte);
-} catch (IOException ex) {
-    // Report
-} finally {
-   try {writer.close();} catch (Exception ex) {/*ignore*/}
-}
+        Writer writer = null;
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(
+            new FileOutputStream(caminho), "utf-8"));
+            writer.write(codigoFonte);
+            } catch (IOException ex) {
+                // Report
+            } finally {
+            try {writer.close();} catch (Exception ex) {/*ignore*/}
+        }
     }
 
     public int leChar(String caminho){

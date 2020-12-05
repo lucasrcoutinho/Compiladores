@@ -157,7 +157,7 @@ public class MainFrame extends javax.swing.JFrame {
             
             linhas.clear();
             linhas = instanciaFacade.getArquivoFonte(caminho);
-            instanciaFacade.chamaSintatico(caminho);
+            instanciaFacade.chamaSintatico(caminho, "");
             CampoErro.setText(instanciaFacade.getErroSintatico());
         }
         catch(java.lang.NullPointerException e){

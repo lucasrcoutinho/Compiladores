@@ -35,9 +35,9 @@ public class Facade{
         return "";
     }
 
-    public String chamaSintatico(String caminho){
+    public String chamaSintatico(String caminho, String nomeArquivo){
         try{
-            sintatico.inicioSintatico(caminho);    
+            sintatico.inicioSintatico(caminho, nomeArquivo);    
         }catch(Exception e){
             return e.getMessage();
         }

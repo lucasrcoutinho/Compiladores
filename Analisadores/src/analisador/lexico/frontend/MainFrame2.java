@@ -31,6 +31,7 @@ public class MainFrame2 extends JFrame implements ActionListener{
     private static MainFrame2 instancia;
     Facade facade = Facade.getInstance();
     String caminhoArquivo = "";
+    String nomeArquivo = "";
     
     private static ArrayList<String> codigoFonte = new ArrayList<>();
     
@@ -42,8 +43,7 @@ public class MainFrame2 extends JFrame implements ActionListener{
         return instancia;
     }
    
-    public MainFrame2() throws BadLocationException {
-        setTitle("LineNumberTextArea Test");
+    public MainFrame2() throws BadLocationException {        
         jsp = new JScrollPane();
         textArea = new JTextArea();
         statusCompilacao = new JTextField();
@@ -121,12 +121,13 @@ public class MainFrame2 extends JFrame implements ActionListener{
    
     public void actionPerformed(ActionEvent evento) {
         JFileChooser chooser = new JFileChooser();
-        chooser.setCurrentDirectory(new java.io.File("."));
+        chooser.setCurrentDirectory(new java.io.File("C:/Users/lucas/Downloads"));
         
         if(evento.getSource() == abrir){
             chooser.showOpenDialog(this);
             try{
                 caminhoArquivo = chooser.getSelectedFile().getAbsolutePath();
+                nomeArquivo = chooser.getSelectedFile().getName();
             }catch(java.lang.NullPointerException e){
                 JOptionPane.showMessageDialog(null, "Aquivo nao selecionado \n "
                 +"Erro caminho: "+e.getMessage(),"Aviso", JOptionPane.WARNING_MESSAGE);
@@ -135,6 +136,7 @@ public class MainFrame2 extends JFrame implements ActionListener{
             carregarCodigoFonte();
             salvar.setEnabled(true);
             compilar.setEnabled(true);
+            setTitle(nomeArquivo);
         }
                 
         if(evento.getSource() == salvar){
@@ -145,6 +147,7 @@ public class MainFrame2 extends JFrame implements ActionListener{
             chooser.showSaveDialog(this);
             try{
                 caminhoArquivo = chooser.getSelectedFile().getAbsolutePath();
+                nomeArquivo = chooser.getSelectedFile().getName();
             }catch(java.lang.NullPointerException e){
                 JOptionPane.showMessageDialog(null, "Aquivo nao selecionado \n "
                 +"Erro caminho: "+e.getMessage(),"Aviso", JOptionPane.WARNING_MESSAGE);
@@ -154,6 +157,7 @@ public class MainFrame2 extends JFrame implements ActionListener{
             salvarArquivo();
             salvar.setEnabled(true);
             compilar.setEnabled(true);
+            setTitle(nomeArquivo);
         }
         
         if(evento.getSource() == compilar){
@@ -206,7 +210,7 @@ public class MainFrame2 extends JFrame implements ActionListener{
     private void compilar() throws BadLocationException{
         int linhaErro;
         String retornoCompilacao;
-        retornoCompilacao = facade.chamaSintatico(caminhoArquivo);
+        retornoCompilacao = facade.chamaSintatico(caminhoArquivo, nomeArquivo);
                 
         if("Compilado com sucesso!".equals(retornoCompilacao)){
             statusCompilacao.setText(retornoCompilacao);

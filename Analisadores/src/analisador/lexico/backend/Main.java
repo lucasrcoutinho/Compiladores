@@ -8,6 +8,7 @@ package analisador.lexico.backend;
 import analisador.lexico.frontend.MainFrame;
 import analisador.lexico.frontend.MainFrame2;
 import analisador.semantico.TestaSemantico_SEPARADO;
+import geracao.de.codigo.GeradorDeCodigo;
 import javax.swing.text.BadLocationException;
 
 /**
@@ -26,7 +27,10 @@ public class Main {
         //TestaSemantico_SEPARADO s = new TestaSemantico_SEPARADO();
         //s.iniciaTeste();//Inicia teste da tabela de simbolos
         //s.chamaCompatibiliza();//Inicia Teste de compatibilizacao
-        //s.iniciaTeste();        
+        //s.iniciaTeste();
+        //GeradorDeCodigo gera = new GeradorDeCodigo();
+        //gera.salvaCodigo();
+        
     }
     
 }

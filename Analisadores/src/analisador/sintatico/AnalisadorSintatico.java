@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import analisador.lexico.backend.AnalisadorLexico;
 import analisador.lexico.backend.Token;
 import analisador.semantico.AnalisadorSemantico;
-import java.io.IOException;
+import geracao.de.codigo.GeradorDeCodigo;
+import java.io.File;
 
 /**
  *
@@ -19,27 +20,35 @@ public class AnalisadorSintatico extends Throwable{
     Token token;
     ArrayList <Token> expressao = new ArrayList<>();
     int linhaErro = -1;
-    int rotulo = 1;
-    int totalVariaveisAlocadas = 0;
-    int quantidadeVarParaAlocar = 1;//Aqui e 1 pra allocar a posicao 0 para retorno de funcao
+    int rotulo;
+    int totalVariaveisAlocadas;
+    int quantidadeVarParaAlocar;
     String mensagemErro;
     AnalisadorLexico analisadorLexico;
     AnalisadorSemantico analisadorSemantico;
+    GeradorDeCodigo gera;
     boolean flagRetornoOk;
     boolean flagVerificaRetorno;
-    boolean erro;    
+    //boolean erro;
+    String nomeArquivoFonte = "";
+    int nivelRetornoFuncao;//caso tenha outros inicio fim dentro de funcao(checagem e feita aqui)
 
     
-    public void inicioSintatico(String caminho) throws Exception{
-        erro = false;
+    public void inicioSintatico(String caminho, String nomeArquivo) throws Exception{
+        //erro = false;
         linhaErro = -1;
         mensagemErro = "";
         analisadorLexico = new AnalisadorLexico(caminho);
         analisadorSemantico = new AnalisadorSemantico();
+        gera = new GeradorDeCodigo();
         flagRetornoOk = false;
-        flagVerificaRetorno = false;        
+        flagVerificaRetorno = false;     
+        quantidadeVarParaAlocar = 1;//Aqui e 1 pra allocar a posicao 0 para retorno de funcao
+        totalVariaveisAlocadas = 0;
+        rotulo = 1;
+        nomeArquivoFonte = nomeArquivo;
+        nivelRetornoFuncao = 0;
         analisadorSintatico();
-        
     }
 
     private void getToken() throws Exception{
@@ -60,6 +69,7 @@ public class AnalisadorSintatico extends Throwable{
                 //++++++++++++++
                 //Gera START
                 System.out.println("START");
+                gera.codigo("START");
                 //++++++++++++++
                 getToken();
                 if ("sponto_virgula".equals(token.getSimbolo())){
@@ -72,6 +82,8 @@ public class AnalisadorSintatico extends Throwable{
                            //+++++++++++++++++++++++++++++++++++++++++++++++++++
                            //Gera HLT
                            System.out.println("HLT");
+                           gera.codigo("HLT");
+                           gera.salvaCodigo(nomeArquivoFonte);
                            //+++++++++++++++++++++++++++++++++++++++++++++++++++
                            //System.out.println("Sucesso");
                            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -93,6 +105,7 @@ public class AnalisadorSintatico extends Throwable{
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //Gera ALLOC 0,quantidade de var
         System.out.println("ALLOC " + totalVariaveisAlocadas + "," + quantidadeVarParaAlocar);
+        gera.codigo("ALLOC " + totalVariaveisAlocadas + "," + quantidadeVarParaAlocar);
         bkpVariaveisAlocadas = totalVariaveisAlocadas;//Salva quantidade atual para desalocar
         bkpVariaveisParaAlocadar = quantidadeVarParaAlocar;
         totalVariaveisAlocadas += quantidadeVarParaAlocar;
@@ -103,6 +116,7 @@ public class AnalisadorSintatico extends Throwable{
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //Gera DALLOC 0,quantidade de var
         System.out.println("DALLOC " + bkpVariaveisAlocadas + "," + bkpVariaveisParaAlocadar);
+        gera.codigo("DALLOC " + bkpVariaveisAlocadas + "," + bkpVariaveisParaAlocadar);
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
     }
     private void analisaEtVariaveis() throws Exception{
@@ -163,6 +177,7 @@ public class AnalisadorSintatico extends Throwable{
             //******************************************************************
             if(flagVerificaRetorno){
                 flagRetornoOk=false;
+                nivelRetornoFuncao++;
             }            
             //******************************************************************
             analisaComandoSimples();
@@ -178,8 +193,7 @@ public class AnalisadorSintatico extends Throwable{
                         }
                         //******************************************************
                         analisaComandoSimples(); 
-                    }
-                                           
+                    }                                           
                 } else{
                     trataErro("Esperado pontovirgula");
                 }                
@@ -188,11 +202,8 @@ public class AnalisadorSintatico extends Throwable{
             // Se flagRetornoOk == false então erro
             // Não encontrou um retorno
             if(flagVerificaRetorno){
-                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                //Gera STR 0
-                System.out.println("STR 0");
-                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                if(!flagRetornoOk){
+                nivelRetornoFuncao--;
+                if(!flagRetornoOk && nivelRetornoFuncao==0){
                     trataErro("Retorno nao encontrado");
                 }
             } 
@@ -265,9 +276,11 @@ public class AnalisadorSintatico extends Throwable{
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 //gera RD
                 System.out.println("RD");
+                gera.codigo("RD");
                 //gera STR                
                 indice = analisadorSemantico.pesquisa_tabela(token.getLexema());
                 System.out.println("STR " + analisadorSemantico.buscaMemoriaRotulo(indice));
+                gera.codigo("STR " + analisadorSemantico.buscaMemoriaRotulo(indice));
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 getToken();
                 if ("sfecha_parenteses".equals(token.getSimbolo())){
@@ -292,8 +305,10 @@ public class AnalisadorSintatico extends Throwable{
                 //gera LDV
                 indice = analisadorSemantico.pesquisa_tabela(token.getLexema());
                 System.out.println("LDV " + analisadorSemantico.buscaMemoriaRotulo(indice));
+                gera.codigo("LDV " + analisadorSemantico.buscaMemoriaRotulo(indice));
                 //gera PRN
                 System.out.println("PRN");
+                gera.codigo("PRN");
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 getToken();
                 if ("sfecha_parenteses".equals(token.getSimbolo())){
@@ -311,6 +326,7 @@ public class AnalisadorSintatico extends Throwable{
         //Gera Lx NULL
         auxRot=rotulo;
         System.out.println("L" +rotulo+" NULL");
+        gera.codigo("L" +rotulo+" NULL");
         rotulo++;
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++        
         retorno = analisaExpressaoRetorno(); 
@@ -326,6 +342,7 @@ public class AnalisadorSintatico extends Throwable{
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //Gera JUMPF Ly
         System.out.println("JMPF L" + rotulo);
+        System.out.println("JMPF L" + rotulo);
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++        
         if ("sfaca".equals(token.getSimbolo())){       
             getToken();
@@ -333,8 +350,10 @@ public class AnalisadorSintatico extends Throwable{
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             //gera JMP Lx
             System.out.println("JMP L" + auxRot);
+            gera.codigo("JMP L" + auxRot);
             //Gera Ly NULL
             System.out.println("L" +rotulo+ " NULL");
+            gera.codigo("L" +rotulo+ " NULL");
             rotulo++;
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             
@@ -351,14 +370,13 @@ public class AnalisadorSintatico extends Throwable{
         boolean backupflagRetornoOk = false;
         getToken();
         //----------------------------------------------------------------------
-        //analisaExpressaoRetorno();//retorno 
         retorno = analisaExpressaoRetorno();        
         if(retorno == -1){
-            //token.setLinha(token.getLinha()-1);
+            token.setLinha(token.getLinha()-1);
             trataErro("Expressao com tipos difentes");
             return;
         }else if(retorno != 0){
-            //token.setLinha(token.getLinha()-1);
+            token.setLinha(token.getLinha()-1);
             trataErro("Expressao nao booleana");
             return;
         }
@@ -370,6 +388,7 @@ public class AnalisadorSintatico extends Throwable{
             //Gera JMPF L1
             auxRot1 = rotulo;
             System.out.println("JMPF L" + rotulo);
+            gera.codigo("JMPF L" + rotulo);
             rotulo++;
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++            
             getToken();
@@ -384,17 +403,21 @@ public class AnalisadorSintatico extends Throwable{
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             //Gera JMP L2
                 System.out.println("JMP L" + rotulo);
+                gera.codigo("JMP L" + rotulo);
             //Gera label L1
                 System.out.println("L" +auxRot1+ " NULL");
+                gera.codigo("L" +auxRot1+ " NULL");
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++            
                 getToken();
                 analisaComandoSimples();                
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             //Gera label L2
             System.out.println("L" +rotulo+ " NULL");
+            gera.codigo("L" +rotulo+ " NULL");
             }else{           
             //Gera label L1
             System.out.println("L" +auxRot1+ " NULL");
+            gera.codigo("L" +auxRot1+ " NULL");
             rotulo++;
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++             
             }
@@ -418,7 +441,8 @@ public class AnalisadorSintatico extends Throwable{
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             auxrot= rotulo;
             //GERA(´ ´,JMP,rotulo,´ ´) {Salta sub-rotinas}
-            System.out.println("JMP L" + rotulo);    
+            System.out.println("JMP L" + rotulo);
+            gera.codigo("JMP L" + rotulo);
             rotulo++;
             flag = 1;
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -438,7 +462,10 @@ public class AnalisadorSintatico extends Throwable{
         }
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //se flag = 1 entao Gera(auxrot,NULL,´ ´,´ ´) {início do principal}
-        if(flag == 1) System.out.println("L" + auxrot + " NULL");
+        if(flag == 1){
+            System.out.println("L" + auxrot + " NULL");
+            gera.codigo("L" + auxrot + " NULL");
+        } 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     }
     private void analisaDeclaracaoProcedimento() throws Exception{
@@ -452,6 +479,7 @@ public class AnalisadorSintatico extends Throwable{
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 //gera label NULL para chamada de funcao/proc
                 System.out.println("L" +rotulo+ " NULL");
+                gera.codigo("L" +rotulo+ " NULL");
                 analisadorSemantico.insere_tabela(token.getLexema(), "tipoProcedimento", "L", rotulo);
                 rotulo++;
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -468,6 +496,7 @@ public class AnalisadorSintatico extends Throwable{
         
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //Gera RETURN
+        gera.codigo("RETURN");
         System.out.println("RETURN");
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     }
@@ -482,6 +511,7 @@ public class AnalisadorSintatico extends Throwable{
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 //gera label NULL para chamada de funcao/proc
                 System.out.println("L" +rotulo+ " NULL");
+                gera.codigo("L" +rotulo+ " NULL");
                 analisadorSemantico.insere_tabela(token.getLexema(), "tipoFuncao", "L", rotulo);
                 rotulo++;
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -510,6 +540,7 @@ public class AnalisadorSintatico extends Throwable{
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //Gera RETURN
+        gera.codigo("RETURN");
         System.out.println("RETURN");
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     }
@@ -536,9 +567,11 @@ public class AnalisadorSintatico extends Throwable{
         for(int i=0 ; i< exprecaoPosFixa.size(); i++){
             if(exprecaoPosFixa.get(i).getLinha() < 0){
                 System.out.println(exprecaoPosFixa.get(i).getSimbolo());
+                gera.codigo(exprecaoPosFixa.get(i).getSimbolo());
             }else{
                 System.out.println(exprecaoPosFixa.get(i).getSimbolo() +
                         exprecaoPosFixa.get(i).getLinha());
+                gera.codigo(exprecaoPosFixa.get(i).getSimbolo() + exprecaoPosFixa.get(i).getLinha());
             }
         }
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -642,7 +675,7 @@ public class AnalisadorSintatico extends Throwable{
         int indice;        
         //Verifica se o token anterior e funcao, se for erro
         if(analisadorSemantico.pesquisa_declfunc_tabela(tokenAnterior.getLexema())){
-            trataErro("Funcao usada sem considerar o valor de retornoasdasdas");                
+            trataErro("Funcao usada sem considerar o valor de retorno");                
         }
         //Verifica se o token anterior e procedimento
         if(!analisadorSemantico.pesquisa_declproc_tabela(tokenAnterior.getLexema())){
@@ -650,6 +683,7 @@ public class AnalisadorSintatico extends Throwable{
         }
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         indice = analisadorSemantico.pesquisa_tabela(tokenAnterior.getLexema());
+        gera.codigo("CALL L" + analisadorSemantico.buscaMemoriaRotulo(indice));
         System.out.println("CALL L" + analisadorSemantico.buscaMemoriaRotulo(indice));
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     }
@@ -679,8 +713,10 @@ public class AnalisadorSintatico extends Throwable{
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //Gera STR
         if(flagVerificaRetorno && analisadorSemantico.pesquisa_declfunc_tabela(tokenAnterior.getLexema())){
-            System.out.println("STR " + "0");
+            gera.codigo("STR 0");
+            System.out.println("STR 0");
         }else{
+            gera.codigo("STR " + analisadorSemantico.buscaMemoriaRotulo(indice));
             System.out.println("STR " + analisadorSemantico.buscaMemoriaRotulo(indice));
         }
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -703,7 +739,7 @@ public class AnalisadorSintatico extends Throwable{
             //indiceToken = listaDeTokens.size();
             erro = true;
             //token = listaDeTokens.get(listaDeTokens.size()-1);        
-        }*/ 
+        }*/
         throw new Exception(token.getLinha() + " - " + metodoChamouErro);
     }
     /*
@@ -719,7 +755,7 @@ public class AnalisadorSintatico extends Throwable{
     
     private void imprimeExpressao(ArrayList<Token> expressao){//Metodo temporario
         for(int i = 0; i< expressao.size(); i++){
-            System.out.print(expressao.get(i).getSimbolo());
+            System.out.print(expressao.get(i).getLexema());
         }
         System.out.println("");
     }

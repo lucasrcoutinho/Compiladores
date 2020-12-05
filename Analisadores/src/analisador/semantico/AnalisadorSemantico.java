@@ -239,7 +239,7 @@ public class AnalisadorSemantico {
                 expressaoTipos.remove(i);
                 expressaoTipos.remove(i);
                 i=0;
-            }else return -10;
+            }else return -1;
         } 
         
         if(expressaoTipos.size() == 2){
@@ -295,7 +295,7 @@ public class AnalisadorSemantico {
                     tabelaDeTipos.add(0);
                 }else if ("verdadeiro".equals(t) || "falso".equals(t)){//Eh pra ter sobrado apenas numero
                     tabelaDeTipos.add(0);
-                }else if(" ".equals(t)){////////////////////////////////////////
+                }else if("".equals(t)){////////////////////////////////////////
                 }else{//Eh pra ter sobrado so numero
                     tabelaDeTipos.add(1);
                 }          
@@ -346,7 +346,7 @@ public class AnalisadorSemantico {
                         expressaoPosFixa.add(new Token(expressao.get(0).getLexema(),
                         "CALL L", tabelaDeSimbolos.get(indice).getMemoriaRotulo()));
                         ////////////////////////////////////////////////////////
-                        expressaoPosFixa.add(new Token(" ","LDV 0", -1));
+                        expressaoPosFixa.add(new Token("","LDV 0", -1));
                         ////////////////////////////////////////////////////////
                         
                     }else if(!pesquisa_declproc_tabela(expressao.get(0).getLexema())){
@@ -401,6 +401,9 @@ public class AnalisadorSemantico {
                 if(podeOperadorUnario){
                     if("smenos".equals(lexeamaTemp)){
                         codigoVM = "INV";
+                    }else{
+                    expressao.remove(0);
+                    continue;// codigoVM = "";//Mais(+) unario 
                     }                    
                     expressao.get(0).setLexema(expressao.get(0).getLexema() + " ");
                     valorPrecedencia = 7;//Unario
@@ -477,25 +480,17 @@ public class AnalisadorSemantico {
         return expressaoPosFixa;
     }
     
-    public boolean testesIf(){
+    public int testesIf(){
             int x = 0;
         
         if (x>2){
-            x=3;
-        }else if(x<2){
-            x=1;
+            if(x>3){
+                return 1;
+            }else{
+                return 3;
+            }
         }
-        
+            return 3;
 
-        while(x>0){
-            return true;
-        }
-        
-        if (x==0){
-            return true;
-        }else
-            //return true;
-
-        return true;
     }
 }
