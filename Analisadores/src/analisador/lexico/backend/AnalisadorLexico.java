@@ -24,33 +24,34 @@ public class AnalisadorLexico {
     int caracterCodASCII;
     Token token;
     
-    LeArquivo leArquivo;
+    ProcessaArquivos leArquivo;
     String caminhoArquivoFonte;
 
-    /*
+    
     public AnalisadorLexico(String caminhoArquivoF){
         numeroDaLinha = 1; 
         caminhoArquivoFonte = caminhoArquivoF;
-        leArquivo = new LeArquivo();
+        leArquivo = new ProcessaArquivos();
         token = new Token("", "", 0);
         lerChar();
-    }*/
+    }
+    /*
     ////////////////////////////////////////////////////////////////////////////
     public AnalisadorLexico(String caminhoArquivoF) throws IOException{
         numeroDaLinha = 1; 
         caminhoArquivoFonte = caminhoArquivoF;
-        leArquivo = new LeArquivo(caminhoArquivoFonte);
+        leArquivo = new ProcessaArquivos(caminhoArquivoFonte);
         token = new Token("", "", 0);
         lerChar();
     }
     ////////////////////////////////////////////////////////////////////////////
-    
+    */
     public Token getToken(){
         token.setErro("");
         token.setLexema("");
         token.setSimbolo("");
         
-        while(token.getLexema() == "" && token.getErro() == ""){
+        while(caractere != 0 && token.getLexema() == "" && token.getErro() == ""){
 
             if(caractere == '{'){
                 trataComentarioChave();
@@ -101,14 +102,13 @@ public class AnalisadorLexico {
             }else if(caractere == '!'){
                 trataDif();
             }else{
-                //System.out.println("Caractere nao reconhecido");
                 trataErro("Caractere nao reconhecido");
             }        
         }
         //System.out.println("Char: " + caractere);
         //System.out.println("Token: " + token.getSimbolo());
         
-        if (caractere == 0){//Fim do arquivo
+        if (caractere < 0){//Fim do arquivo
                 token.setErro("");
                 token.setLexema("");
                 token.setSimbolo("");
@@ -382,5 +382,5 @@ public class AnalisadorLexico {
             caractere = (char) codASCII;
             caracterCodASCII = codASCII;            
         }
-    } 
+    }
 }

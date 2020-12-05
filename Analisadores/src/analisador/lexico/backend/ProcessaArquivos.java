@@ -8,12 +8,15 @@ package analisador.lexico.backend;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
@@ -21,21 +24,14 @@ import java.util.ArrayList;
  *
  * @author lucas
  */
-public class LeArquivo {
+public class ProcessaArquivos {
     private ArrayList<String> linhas = new ArrayList<>();
     private static int indice;
 
-    LeArquivo(){
+    public ProcessaArquivos(){
         indice = 0;
     }
-    ////////////////////////////////////////////////////////////////////////////
-    LeArquivo(String path) throws IOException{
-        Writer arquivo = new BufferedWriter(new FileWriter(path, true));
-        arquivo.append("\n ");
-        arquivo.close();
-        indice = 0;
-    }
-    ////////////////////////////////////////////////////////////////////////////
+
     public ArrayList getPrograma(String caminho){          
         try{
             FileReader arq = new FileReader(caminho);
@@ -63,6 +59,20 @@ public class LeArquivo {
             return null;
 	}
     }
+    
+    public void salvarCodigo(String codigoFonte, String caminho){
+Writer writer = null;
+
+try {
+    writer = new BufferedWriter(new OutputStreamWriter(
+          new FileOutputStream(caminho), "utf-8"));
+    writer.write(codigoFonte);
+} catch (IOException ex) {
+    // Report
+} finally {
+   try {writer.close();} catch (Exception ex) {/*ignore*/}
+}
+    }
 
     public int leChar(String caminho){
         File arq = new File(caminho);
@@ -77,5 +87,5 @@ public class LeArquivo {
             System.err.printf("Erro na leitura do arquivo: %s \n", e.getMessage());
         }
         return c;
-    }    
+    }
 }

@@ -1,0 +1,6 @@
+programa teste; {*Teste OK*}
+var x,a,b,c:inteiro;
+	  z:booleano;
+inicio
+ z:= verdadeiro;
+fim.

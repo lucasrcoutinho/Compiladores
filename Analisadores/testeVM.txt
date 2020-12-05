@@ -14,7 +14,3 @@ inicio
 	escreva (x);
 	escreva (y)
 fim.
- 
- 
- 
- 

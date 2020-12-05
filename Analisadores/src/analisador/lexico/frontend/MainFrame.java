@@ -27,13 +27,18 @@ public class MainFrame extends javax.swing.JFrame {
     /**
      * Creates new form NewJFrame
      */
-    Facade facadeInstancia;
-    
+    private static MainFrame instancia;
+    static Facade instanciaFacade;
+
     public MainFrame() {
-        facadeInstancia = new Facade();
+        //instanciaFacade = new Facade();
+        instanciaFacade = Facade.getInstance();
         initComponents();
     }
-
+    
+    public void teste(){
+        System.out.println("Teste de instancia do mainframe");
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -71,26 +76,36 @@ public class MainFrame extends javax.swing.JFrame {
 
         TabelaPrint.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-
+                {null, null}
             },
             new String [] {
                 "Linha", "Codigo"
             }
         ) {
-            boolean[] canEdit = new boolean [] {
-                false, false
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.String.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, true
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
         TabelaPrint.setEnabled(false);
+        TabelaPrint.setGridColor(new java.awt.Color(102, 102, 102));
+        TabelaPrint.setSelectionBackground(new java.awt.Color(255, 255, 255));
+        TabelaPrint.setShowHorizontalLines(false);
         jScrollPane1.setViewportView(TabelaPrint);
         if (TabelaPrint.getColumnModel().getColumnCount() > 0) {
-            TabelaPrint.getColumnModel().getColumn(0).setMinWidth(50);
-            TabelaPrint.getColumnModel().getColumn(0).setPreferredWidth(50);
-            TabelaPrint.getColumnModel().getColumn(0).setMaxWidth(50);
+            TabelaPrint.getColumnModel().getColumn(0).setMinWidth(35);
+            TabelaPrint.getColumnModel().getColumn(0).setPreferredWidth(35);
+            TabelaPrint.getColumnModel().getColumn(0).setMaxWidth(35);
         }
 
         CampoErro.setEditable(false);
@@ -141,14 +156,12 @@ public class MainFrame extends javax.swing.JFrame {
             caminho = fileChooser.getSelectedFile().getAbsolutePath();
             
             linhas.clear();
-            linhas = facadeInstancia.getArquivoFonte(caminho);
-            facadeInstancia.chamaSintatico(caminho);
-            CampoErro.setText(facadeInstancia.getErroSintatico());
+            linhas = instanciaFacade.getArquivoFonte(caminho);
+            instanciaFacade.chamaSintatico(caminho);
+            CampoErro.setText(instanciaFacade.getErroSintatico());
         }
         catch(java.lang.NullPointerException e){
             System.err.printf("Caminho do arquivo nao selecionao!\n");
-        } catch (IOException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         TabelaPrint.getColumnModel().getColumn(0).setPreferredWidth(1);
@@ -164,8 +177,8 @@ public class MainFrame extends javax.swing.JFrame {
             modelo.addRow(new Object[]{"", "", ""});
         }        
         try{
-            if (facadeInstancia.getErroSintatico() != "Sucesso"){
-                msg = facadeInstancia.getErroSintatico().split(" -");        
+            if (instanciaFacade.getErroSintatico() != "Sucesso"){
+                msg = instanciaFacade.getErroSintatico().split(" -");        
                 JOptionPane.showMessageDialog(null, msg[0]);
                 msg = msg[0].split(": ");
                 TabelaPrint.setRowSelectionInterval(parseInt(msg[1])-1, parseInt(msg[1])-1);
@@ -173,7 +186,7 @@ public class MainFrame extends javax.swing.JFrame {
             }
 
         }catch(java.lang.NullPointerException f){
-            
+
         } 
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -188,7 +201,7 @@ public class MainFrame extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Windows".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }

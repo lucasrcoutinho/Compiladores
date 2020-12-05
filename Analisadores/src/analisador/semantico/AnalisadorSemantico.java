@@ -16,27 +16,19 @@ import java.util.Stack;
 
 public class AnalisadorSemantico {
     private final ArrayList<Simbolo> tabelaDeSimbolos;
-    //private int nivelEscopo;
     
     public AnalisadorSemantico(){    
         tabelaDeSimbolos = new ArrayList();
-        //nivelEscopo = 0;
     }
 
     public void imprimeTabelaSimbolos(){
         for(int i = 0; i < tabelaDeSimbolos.size(); i++){
-            //for(int cont = 0; cont < tabelaDeSimbolos.get(i).getNivelEscopo(); cont++){
-            //    System.out.print("\t");
-            //}
             System.out.print("Nome: " + tabelaDeSimbolos.get(i).getLexema());
             System.out.print("| Tipo: " + tabelaDeSimbolos.get(i).getTipoLexema());
             System.out.print("| Nivel: " + tabelaDeSimbolos.get(i).getNivelEscopo());
             if(!"".equals(tabelaDeSimbolos.get(i).getTipo())){
                 System.out.print("| Tipo: " + tabelaDeSimbolos.get(i).getTipo());
             }
-            //if(tabelaDeSimbolos.get(i).getProcedimentoCorrente() == true){
-            //    System.out.println(" *");
-            //}else
             System.out.println("");
         }
     
@@ -92,8 +84,7 @@ public class AnalisadorSemantico {
         //Caso encontre duplicidade eh considerado um erro semantico(dois identificadores iguais)        
         
         //Se declaracao de procedimento ou funcao, pesquisa em toda a tabela
-        //Nao pode haver nenhum tipo de duplicidade     
-        
+        //Nao pode haver nenhum tipo de duplicidade   
         int i = tabelaDeSimbolos.size()-1;
         boolean nivelAtual = true;
         
@@ -186,8 +177,6 @@ public class AnalisadorSemantico {
     }
 
     public int compatibilizacaoTipos(ArrayList expressaoPosFixa){
-        //ab+c+d*
-        //abc*+
         int i = 0;
         int eOu = 7;        //e,ou              //Converter para constante
         int aritmeticos = 6;//+,-,*div          //Converter para constante
@@ -352,30 +341,31 @@ public class AnalisadorSemantico {
                 
                 if ("sidentificador".equals(lexeamaTemp)){
                     indice = pesquisa_tabela(expressao.get(0).getLexema());
+                    
                     if(pesquisa_declfunc_tabela(expressao.get(0).getLexema())){
                         expressaoPosFixa.add(new Token(expressao.get(0).getLexema(),
-                        "CALL", tabelaDeSimbolos.get(indice).getMemoriaRotulo()));
+                        "CALL L", tabelaDeSimbolos.get(indice).getMemoriaRotulo()));
                         ////////////////////////////////////////////////////////
                         expressaoPosFixa.add(new Token(" ","LDV 0", -1));
                         ////////////////////////////////////////////////////////
+                        
                     }else if(!pesquisa_declproc_tabela(expressao.get(0).getLexema())){
                         expressaoPosFixa.add(new Token(expressao.get(0).getLexema(),
-                        "LDV", tabelaDeSimbolos.get(indice).getMemoriaRotulo()));
+                        "LDV ", tabelaDeSimbolos.get(indice).getMemoriaRotulo()));
                     }else{
                         expressaoPosFixa.clear();//Se econtrou proc na expressoa = erro
                         return expressaoPosFixa;
                     }                
                 }else if("sverdadeiro".equals(lexeamaTemp)){
                     expressaoPosFixa.add(new Token(expressao.get(0).getLexema(),
-                    "LDC", 1));
+                    "LDC ", 1));
                 }else if("sfalso".equals(lexeamaTemp)){
                     expressaoPosFixa.add(new Token(expressao.get(0).getLexema(),
-                    "LDC", 0));
+                    "LDC ", 0));
                 }else if("snumero".equals(lexeamaTemp)){
                     expressaoPosFixa.add(new Token(expressao.get(0).getLexema(), 
-                    "LDC", Integer.parseInt(expressao.get(0).getLexema()))); 
+                    "LDC ", Integer.parseInt(expressao.get(0).getLexema()))); 
                 }       
-               
                 expressao.remove(0);
                 podeOperadorUnario = false;
                 continue;

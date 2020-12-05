@@ -91,14 +91,14 @@
         <Component class="javax.swing.JTable" name="TabelaPrint">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-              <Table columnCount="2" rowCount="0">
+              <Table columnCount="2" rowCount="1">
                 <Column editable="false" title="Linha" type="java.lang.Object"/>
-                <Column editable="false" title="Codigo" type="java.lang.Object"/>
+                <Column editable="true" title="Codigo" type="java.lang.String"/>
               </Table>
             </Property>
             <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
               <TableColumnModel selectionModel="0">
-                <Column maxWidth="50" minWidth="50" prefWidth="50" resizable="true">
+                <Column maxWidth="35" minWidth="35" prefWidth="35" resizable="true">
                   <Title/>
                   <Editor/>
                   <Renderer/>
@@ -111,6 +111,13 @@
               </TableColumnModel>
             </Property>
             <Property name="enabled" type="boolean" value="false"/>
+            <Property name="gridColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="66" green="66" red="66" type="rgb"/>
+            </Property>
+            <Property name="selectionBackground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="showHorizontalLines" type="boolean" value="false"/>
             <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
               <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
             </Property>

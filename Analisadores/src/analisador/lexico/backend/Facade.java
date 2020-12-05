@@ -6,37 +6,50 @@
 package analisador.lexico.backend;
 
 import analisador.sintatico.AnalisadorSintatico;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
  *
  * @author lucas
  */
-public class Facade {
-    
+public class Facade{
+    private static Facade instancia;
     //AnalisadorLexico analisadorLexico = new AnalisadorLexico();
-    LeArquivo leArquivo = new LeArquivo(); 
+    ProcessaArquivos processaArquivos = new ProcessaArquivos(); 
     
     //Provisorio para testar o sintatico, não pode ficar assim!!!
         //Necessario fazer a abertura do arquivo dentro do sintatico
         //Ler token conforme requisitado pelo sintatico
-    AnalisadorSintatico sintatico = new AnalisadorSintatico();     
-
+    AnalisadorSintatico sintatico = new AnalisadorSintatico();
     
-    public String getErroSintatico()
-    {
+    
+    public static synchronized Facade getInstance(){
+        if(instancia == null){
+            instancia = new Facade();
+        }        
+        return instancia;
+    }
+    
+    public String getErroSintatico(){
         //return analisadorLexico.getErro();  
-        return sintatico.getErro();
+        return "";
     }
 
+    public String chamaSintatico(String caminho){
+        try{
+            sintatico.inicioSintatico(caminho);    
+        }catch(Exception e){
+            return e.getMessage();
+        }
+        return "Compilado com sucesso!";    
+    }
     
-    //Provisorio para testar o sintatico, não pode ficar assim!!!
-    public void chamaSintatico(String caminho) throws IOException{
-        sintatico.inicioSintatico(caminho);        
+    public void salvarCodigo(String codgigoFonte, String caminho){
+        processaArquivos.salvarCodigo(codgigoFonte, caminho);    
     }
     
     public ArrayList getArquivoFonte(String caminho){
-        return leArquivo.getPrograma(caminho);
-    }   
+        return processaArquivos.getPrograma(caminho);
+    }
+
 }
