@@ -9,12 +9,13 @@ import analisador.lexico.backend.Token;
 import java.util.ArrayList;
 import java.util.Stack;
 
+
 /**
  *
  * @author lucas
  */
 
-public class AnalisadorSemantico {
+public class AnalisadorSemantico {   
     private final ArrayList<Simbolo> tabelaDeSimbolos;
     
     public AnalisadorSemantico(){    
@@ -177,6 +178,7 @@ public class AnalisadorSemantico {
     }
 
     public int compatibilizacaoTipos(ArrayList expressaoPosFixa){
+
         int i = 0;
         int eOu = 7;        //e,ou              //Converter para constante
         int aritmeticos = 6;//+,-,*div          //Converter para constante
@@ -420,7 +422,7 @@ public class AnalisadorSemantico {
                 codigoVM = "MULT";
             }else if("sdiv".equals(lexeamaTemp)){
                 valorPrecedencia = 6;
-                codigoVM = "DIV";
+                codigoVM = "DIVI";
             }else if("snao".equals(lexeamaTemp) ){
                 valorPrecedencia = 7;
                 codigoVM = "NEG";
