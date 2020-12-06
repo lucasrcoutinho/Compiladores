@@ -287,6 +287,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void botaoExecutarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoExecutarActionPerformed
 
+        //botaoExecutar.setEnabled(false);
         int linhaDeParada = areaCodigo.getSelectedRow();
         boolean debug = debugCheckBox.isSelected();
         boolean passoapasso = passoAPassoCheckBox.isSelected();
@@ -295,6 +296,8 @@ public class MainFrame extends javax.swing.JFrame {
         limpaDadosExec();
 
         facadeInstancia.executaProg(debug, passoapasso, linhaDeParada);
+        
+        
     }//GEN-LAST:event_botaoExecutarActionPerformed
 
     private void btnContinuarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnContinuarActionPerformed
@@ -362,7 +365,7 @@ public class MainFrame extends javax.swing.JFrame {
         javax.swing.table.DefaultTableModel modeloCod = (javax.swing.table.DefaultTableModel) areaCodigo.getModel();
         modeloCod.setNumRows(0);
 
-        facadeInstancia.reiniciaInstancias();
+        facadeInstancia.reiniciaInstanciasPath();
     }
 
     public void escrita_out(String dado) {

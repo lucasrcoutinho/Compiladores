@@ -65,6 +65,14 @@ public class Facede {
         continuar = false;
         input.clear();
     }
+    
+    public void reiniciaInstanciasPath() {
+        maquina = new Maquina();
+        pilhaDados.reiniciar();
+        pilhaPrograma.reiniciar();
+        continuar = false;
+        input.clear();
+    }
 
     public void cotinuaExecucao() {
         continuar = true;
