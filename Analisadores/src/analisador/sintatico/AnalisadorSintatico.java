@@ -342,7 +342,7 @@ public class AnalisadorSintatico extends Throwable{
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //Gera JUMPF Ly
         System.out.println("JMPF L" + rotulo);
-        System.out.println("JMPF L" + rotulo);
+        gera.codigo("JMPF L" + rotulo);
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++        
         if ("sfaca".equals(token.getSimbolo())){       
             getToken();
@@ -478,8 +478,8 @@ public class AnalisadorSintatico extends Throwable{
             }else{
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 //gera label NULL para chamada de funcao/proc
-                System.out.println("L" +rotulo+ " NULL");
-                gera.codigo("L" +rotulo+ " NULL");
+                System.out.println("L" +rotulo+ " NULL" + "         " + token.getLexema());
+                gera.codigo("L" +rotulo+ " NULL" + "         " + token.getLexema());
                 analisadorSemantico.insere_tabela(token.getLexema(), "tipoProcedimento", "L", rotulo);
                 rotulo++;
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -510,8 +510,8 @@ public class AnalisadorSintatico extends Throwable{
             }else{
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 //gera label NULL para chamada de funcao/proc
-                System.out.println("L" +rotulo+ " NULL");
-                gera.codigo("L" +rotulo+ " NULL");
+                System.out.println("L" +rotulo+ " NULL" + "         " + token.getLexema());
+                gera.codigo("L" +rotulo+ " NULL" + "         " + token.getLexema());
                 analisadorSemantico.insere_tabela(token.getLexema(), "tipoFuncao", "L", rotulo);
                 rotulo++;
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -683,8 +683,8 @@ public class AnalisadorSintatico extends Throwable{
         }
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         indice = analisadorSemantico.pesquisa_tabela(tokenAnterior.getLexema());
-        gera.codigo("CALL L" + analisadorSemantico.buscaMemoriaRotulo(indice));
-        System.out.println("CALL L" + analisadorSemantico.buscaMemoriaRotulo(indice));
+        gera.codigo("CALL L" + analisadorSemantico.buscaMemoriaRotulo(indice)+"          "+tokenAnterior.getLexema());
+        System.out.println("CALL L" + analisadorSemantico.buscaMemoriaRotulo(indice)+"          "+tokenAnterior.getLexema());
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     }
     private void analisaAtribuicao(Token tokenAnterior) throws Exception{        

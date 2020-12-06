@@ -167,6 +167,7 @@ public class MainFrame extends javax.swing.JFrame {
         TabelaPrint.getColumnModel().getColumn(0).setPreferredWidth(1);
         javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) TabelaPrint.getModel(); 
         modelo.getDataVector().removeAllElements();
+        
         modelo.fireTableDataChanged();
         for(int i = 0; i<linhas.size() - 1; i++){
             modelo.addRow(new Object[]{i+1, linhas.get(i), linhas.get(i)});
@@ -181,7 +182,7 @@ public class MainFrame extends javax.swing.JFrame {
                 msg = instanciaFacade.getErroSintatico().split(" -");        
                 JOptionPane.showMessageDialog(null, msg[0]);
                 msg = msg[0].split(": ");
-                TabelaPrint.setRowSelectionInterval(parseInt(msg[1])-1, parseInt(msg[1])-1);
+                TabelaPrint.setRowSelectionInterval(4, 4);
                 TabelaPrint.setSelectionBackground(Color.red);
             }
 
