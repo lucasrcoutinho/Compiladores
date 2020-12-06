@@ -402,7 +402,7 @@ public class AnalisadorSintatico extends Throwable{
         }else trataErro("Esperado palavra reservada faca"); 
     }     
     private void analisaSe() throws Exception{
-        int retorno, auxRot1;
+        int retorno, auxRot1, auxRot2;
         boolean backupflagRetornoOk = false;
         getToken();
         
@@ -444,11 +444,13 @@ public class AnalisadorSintatico extends Throwable{
                 
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             //Gera JMP L2
+                auxRot2 = rotulo;
                 System.out.println("JMP L" + rotulo);
                 gera.codigo("JMP L" + rotulo);
             //Gera label L1
                 System.out.println("L" +auxRot1+ " NULL");
                 gera.codigo("L" +auxRot1+ " NULL");
+                rotulo++;
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
             
                 getToken();
@@ -456,8 +458,8 @@ public class AnalisadorSintatico extends Throwable{
                 
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             //Gera label L2
-            System.out.println("L" +rotulo+ " NULL");
-            gera.codigo("L" +rotulo+ " NULL");
+            System.out.println("L" +auxRot2+ " NULL");
+            gera.codigo("L" +auxRot2+ " NULL");
             rotulo++;
             }else{           
             //Gera label L1
