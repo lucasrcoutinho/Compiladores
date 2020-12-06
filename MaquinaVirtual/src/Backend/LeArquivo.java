@@ -33,10 +33,10 @@ public class LeArquivo
         catch(IOException e)
         {
             System.err.printf("Erro na leitura do arquivo: %s \n", e.getMessage());
-        }       
-    } 
+        }
+    }
     
-    public ArrayList getComandos()
+    public ArrayList getDados()
     {
         return linhas;
     }
