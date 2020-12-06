@@ -124,6 +124,7 @@ public class AnalisadorSintatico extends Throwable{
         if(bkpVariaveisParaAlocadar>0){
             System.out.println("DALLOC " + bkpVariaveisAlocadas + "," + bkpVariaveisParaAlocadar);
             gera.codigo("DALLOC " + bkpVariaveisAlocadas + "," + bkpVariaveisParaAlocadar);
+            totalVariaveisAlocadas -= bkpVariaveisParaAlocadar;
         }
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
@@ -457,6 +458,7 @@ public class AnalisadorSintatico extends Throwable{
             //Gera label L2
             System.out.println("L" +rotulo+ " NULL");
             gera.codigo("L" +rotulo+ " NULL");
+            rotulo++;
             }else{           
             //Gera label L1
             System.out.println("L" +auxRot1+ " NULL");
