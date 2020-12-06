@@ -47,6 +47,11 @@ public class PilhaDados {
         pilhaDados.remove(posicao);
         return pilhaDados.size();
     }
+    
+    public void reiniciar()
+    {
+        pilhaDados = new ArrayList();
+    }
 
     public ArrayList<Double> getPilha() {
         return pilhaDados;

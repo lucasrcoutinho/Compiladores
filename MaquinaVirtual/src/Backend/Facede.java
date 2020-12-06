@@ -61,8 +61,7 @@ public class Facede {
 
     public void reiniciaInstancias() {
         maquina = new Maquina();
-        //pilhaDados.reiniciar();
-        //pilhaPrograma.reiniciar();
+        pilhaDados.reiniciar();
         continuar = false;
         input.clear();
     }

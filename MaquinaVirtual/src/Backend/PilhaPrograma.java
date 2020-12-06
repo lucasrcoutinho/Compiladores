@@ -45,6 +45,11 @@ public class PilhaPrograma {
         return pilhaPrograma;
     }
     
+    public void reiniciar()
+    {
+        pilhaPrograma = new ArrayList();
+    }
+    
     public int buscalabel(String label)
     {
         System.out.println("============================");

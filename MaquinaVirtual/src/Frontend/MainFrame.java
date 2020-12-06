@@ -291,6 +291,7 @@ public class MainFrame extends javax.swing.JFrame {
         boolean debug = debugCheckBox.isSelected();
         boolean passoapasso = passoAPassoCheckBox.isSelected();
         
+        facadeInstancia.reiniciaInstancias();
         limpaDadosExec();
 
         facadeInstancia.executaProg(debug, passoapasso, linhaDeParada);
@@ -398,14 +399,6 @@ public class MainFrame extends javax.swing.JFrame {
                 for (int i = 0; i < pilha.size(); i++) {
                     modeloDados.addRow(new Object[]{i, pilha.get(i)});
                 }
-                
-                int linha = facadeInstancia.getLinhaMemExe();
-                
-                if(linha <= pilha.size())
-                {
-                    tabelaMemoria.setRowSelectionInterval(linha-1, linha-1);
-                    tabelaMemoria.setSelectionBackground(Color.red);
-                } 
             }
 
         };
