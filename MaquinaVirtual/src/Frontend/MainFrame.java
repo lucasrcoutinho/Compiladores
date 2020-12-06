@@ -398,6 +398,14 @@ public class MainFrame extends javax.swing.JFrame {
                 for (int i = 0; i < pilha.size(); i++) {
                     modeloDados.addRow(new Object[]{i, pilha.get(i)});
                 }
+                
+                int linha = facadeInstancia.getLinhaMemExe();
+                
+                if(linha <= pilha.size())
+                {
+                    tabelaMemoria.setRowSelectionInterval(linha-1, linha-1);
+                    tabelaMemoria.setSelectionBackground(Color.red);
+                } 
             }
 
         };
@@ -435,9 +443,9 @@ public class MainFrame extends javax.swing.JFrame {
                     modeloProg.addRow(new Object[]{i, pilha.get(i)});
                 }
                 
-                int linha = facadeInstancia.getLinhaExe();
+                int linha = facadeInstancia.getLinhaProgExe();
                 
-                tabelaPrograma.setRowSelectionInterval(linha-1, linha-1);
+                tabelaPrograma.setRowSelectionInterval(linha, linha);
                 tabelaPrograma.setSelectionBackground(Color.red);
             }
 

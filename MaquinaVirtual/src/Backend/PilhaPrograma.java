@@ -33,7 +33,7 @@ public class PilhaPrograma {
     {
         return pilhaPrograma.get(posicao);
     }
-    
+     
     public int excluiDado(int posicao)
     {
         pilhaPrograma.remove(posicao);
