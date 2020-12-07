@@ -180,14 +180,14 @@ public class AnalisadorSemantico {
     public int compatibilizacaoTipos(ArrayList expressaoPosFixa){
 
         int i = 0;
-        int eOu = 7;        //e,ou              //Converter para constante
-        int aritmeticos = 6;//+,-,*div          //Converter para constante
-        int relacionais = 5;//>,<,>=,<=,=,!=    //Converter para constante
-        int comparacao = 4; //=,!=,             //Converter para constante
-        int uAritmetico = 3;//+,-               //Converter para constante
-        int negacao = 2;    //nao               //Converter para constante
-        int inteiro = 1;    //numero ouvariavel //Converter para constante
-        int booleano = 0;   //booleano          //Converter para constante       
+        int eOu = 7;        //e,ou              
+        int aritmeticos = 6;//+,-,*div          
+        int relacionais = 5;//>,<,>=,<=,=,!=    
+        int comparacao = 4; //=,!=,             
+        int uAritmetico = 3;//+,-               
+        int negacao = 2;    //nao               
+        int inteiro = 1;    //numero ouvariavel 
+        int booleano = 0;   //booleano                
         
         ArrayList<Integer> expressaoTipos;//Necessario ArrayList para deletar elemento
         expressaoTipos = geraTabelaDeTipos(expressaoPosFixa);

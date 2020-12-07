@@ -238,6 +238,7 @@ public class MainFrame extends JFrame implements ActionListener{
             }catch(javax.swing.text.BadLocationException e){
             
             }
+            jsp.getViewport().setViewPosition(new java.awt.Point(0,1));
         }
     }
 }

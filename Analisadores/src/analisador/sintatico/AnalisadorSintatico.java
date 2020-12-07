@@ -22,6 +22,8 @@ public class AnalisadorSintatico extends Throwable{
     int rotulo;
     int totalVariaveisAlocadas;
     int quantidadeVarParaAlocar;
+    int nivelRetornoFuncao;//caso tenha outros inicio fim dentro de funcao(checagem e feita aqui)
+
     String mensagemErro;
     AnalisadorLexico analisadorLexico;
     AnalisadorSemantico analisadorSemantico;
@@ -29,7 +31,6 @@ public class AnalisadorSintatico extends Throwable{
     boolean flagRetornoOk;
     boolean flagVerificaRetorno;
     String nomeArquivoFonte = "";
-    int nivelRetornoFuncao;//caso tenha outros inicio fim dentro de funcao(checagem e feita aqui)
 
     
     public void inicioSintatico(String caminho, String nomeArquivo) throws Exception{
@@ -78,7 +79,7 @@ public class AnalisadorSintatico extends Throwable{
                    //System.out.println("token.getSimbolo() " + token.getSimbolo());
                    if ("sponto".equals(token.getSimbolo())){                       
                        getToken();
-                       if ("".equals(token.getSimbolo())){//Confirmar esta opcao
+                       if ("".equals(token.getSimbolo())){
                            
                            //+++++++++++++++++++++++++++++++++++++++++++++++++++
                            //Gera HLT
@@ -267,8 +268,7 @@ public class AnalisadorSintatico extends Throwable{
         //Salva token anterior antes de pegar o proximo
         Token bkpToken = new Token(token.getLexema(), token.getSimbolo(), 0); 
         getToken();        
-        if ("satribuicao".equals(token.getSimbolo())){
-            
+        if ("satribuicao".equals(token.getSimbolo())){            
             //******************************************************************
             //Pode ir pra dentro do analisa atribuição 
             //Verificar se o token anterior eh variavel
@@ -364,10 +364,10 @@ public class AnalisadorSintatico extends Throwable{
         
         retorno = analisaExpressaoRetorno(); 
         if(retorno == -1){
-            token.setLinha(token.getLinha()-1);
+            token.setLinha(linhaErro);
             trataErro("Expressao com tipos difentes");
         }else if(retorno != 0){
-            token.setLinha(token.getLinha()-1);
+            token.setLinha(linhaErro);
             trataErro("Expressao nao booleana");
         }
     //--------------------------------------------------------------------------
@@ -411,11 +411,11 @@ public class AnalisadorSintatico extends Throwable{
         //----------------------------------------------------------------------
         retorno = analisaExpressaoRetorno();        
         if(retorno == -1){
-            token.setLinha(token.getLinha()-1);
+            token.setLinha(linhaErro);
             trataErro("Expressao com tipos difentes");
             return;
         }else if(retorno != 0){
-            //token.setLinha(token.getLinha()-1);
+            token.setLinha(linhaErro);
             trataErro("Expressao nao booleana");
             return;
         }
@@ -635,6 +635,7 @@ public class AnalisadorSintatico extends Throwable{
         return analisadorSemantico.compatibilizacaoTipos(exprecaoPosFixa);//Retorna o tipo da expressao -1-erro 0-Bool 1-int     
     }
     private void analisaExpressao() throws Exception{
+        linhaErro = token.getLinha();
         analisaExpressaoSimples();
         if (token.getSimbolo().equals("smenor") ||
                 token.getSimbolo().equals("sdif") ||
@@ -656,7 +657,7 @@ public class AnalisadorSintatico extends Throwable{
         if ("smais".equals(token.getSimbolo()) || "smenos".equals(token.getSimbolo())){
             
             //------------------------------------------------------------------
-            expressao.add(new Token(token.getLexema(), token.getSimbolo(), 0));;
+            expressao.add(new Token(token.getLexema(), token.getSimbolo(), 0));
             //------------------------------------------------------------------
             
             getToken();
@@ -667,7 +668,7 @@ public class AnalisadorSintatico extends Throwable{
                 "sou".equals(token.getSimbolo())){
             
             //------------------------------------------------------------------
-            expressao.add(new Token(token.getLexema(), token.getSimbolo(), 0));;
+            expressao.add(new Token(token.getLexema(), token.getSimbolo(), 0));
             //------------------------------------------------------------------
             
             getToken();
@@ -681,7 +682,7 @@ public class AnalisadorSintatico extends Throwable{
                 "se".equals(token.getSimbolo())){
             
             //------------------------------------------------------------------
-            expressao.add(new Token(token.getLexema(), token.getSimbolo(), 0));;
+            expressao.add(new Token(token.getLexema(), token.getSimbolo(), 0));
             //------------------------------------------------------------------
             
             getToken();
@@ -692,7 +693,7 @@ public class AnalisadorSintatico extends Throwable{
         int indice;
         
         //----------------------------------------------------------------------
-        expressao.add(new Token(token.getLexema(), token.getSimbolo(), 0));;
+        expressao.add(new Token(token.getLexema(), token.getSimbolo(), 0));
         //----------------------------------------------------------------------
         
         if ("sidentificador".equals(token.getSimbolo())){
@@ -795,10 +796,11 @@ public class AnalisadorSintatico extends Throwable{
         }
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         
-        if(tipoExpressao == -1){
-            token.setLinha(token.getLinha()-1);
-            trataErro("Expressao com tipos difentes");
+        if(tipoExpressao == -1){            
+            token.setLinha(linhaErro);            
+            trataErro("Expressao com tipos difentes!");
         }else if(tipoExpressao != tipoVariavel){
+            token.setLinha(linhaErro);
             trataErro("Atribuicao com tipos difentes");
         }
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
