@@ -31,7 +31,6 @@ public class Facede {
     }
 
     public void executaProg(boolean debug, boolean passoAPasso, int parada) {
-        System.out.println("=============================" + passoAPasso);
         this.debug = debug;
         this.passoAPasso = passoAPasso;
         this.parada = parada;
@@ -62,8 +61,17 @@ public class Facede {
 
     public void reiniciaInstancias() {
         maquina = new Maquina();
-        pilhaDados = PilhaDados.getInstance();
-        pilhaPrograma = PilhaPrograma.getInstance();
+        pilhaDados.reiniciar();
+        continuar = false;
+        input.clear();
+    }
+    
+    public void reiniciaInstanciasPath() {
+        maquina = new Maquina();
+        pilhaDados.reiniciar();
+        pilhaPrograma.reiniciar();
+        continuar = false;
+        input.clear();
     }
 
     public void cotinuaExecucao() {
@@ -111,9 +119,14 @@ public class Facede {
         }
     }
     
-    public int getLinhaExe()
+    public int getLinhaProgExe()
     {
         return maquina.getReg_i();
+    }
+    
+    public int getLinhaMemExe()
+    {
+        return maquina.getReg_s();
     }
     
     public class MaquinaThread extends Thread{

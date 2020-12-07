@@ -33,7 +33,7 @@ public class PilhaPrograma {
     {
         return pilhaPrograma.get(posicao);
     }
-    
+     
     public int excluiDado(int posicao)
     {
         pilhaPrograma.remove(posicao);
@@ -43,6 +43,11 @@ public class PilhaPrograma {
     public ArrayList<String> getPilha()
     {
         return pilhaPrograma;
+    }
+    
+    public void reiniciar()
+    {
+        pilhaPrograma = new ArrayList();
     }
     
     public int buscalabel(String label)

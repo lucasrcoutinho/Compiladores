@@ -31,7 +31,6 @@ public class Maquina{
         int m;
 
         String[] mn;
-        System.out.println("=============================" + passoAPasso);
         boolean hlt = false;
         
         String input;
@@ -340,5 +339,10 @@ public class Maquina{
     public int getReg_i()
     {
         return reg_i;
+    }
+    
+    public int getReg_s()
+    {
+        return reg_s;
     }
 }
