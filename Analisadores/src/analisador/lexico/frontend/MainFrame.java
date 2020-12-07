@@ -1,237 +1,243 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package analisador.lexico.frontend;
 
-import analisador.sintatico.AnalisadorSintatico;
-import java.awt.Color;
-import java.awt.Component;
+import analisador.lexico.backend.Facade;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import static java.lang.Integer.parseInt;
 import java.util.ArrayList;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import analisador.lexico.backend.Facade;
-import analisador.lexico.backend.Token;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Element;
 
-/**
- *
- * @author lucas
- */
-public class MainFrame extends javax.swing.JFrame {
-
-    /**
-     * Creates new form NewJFrame
-     */
+public class MainFrame extends JFrame implements ActionListener{
+    private static JTextArea textArea;
+    private static JTextArea lines;
+    private static JTextField statusCompilacao;
+    private JScrollPane jsp;
+    JLabel labelStatusCompilacao;
+    JLabel espacoEmBranco;
+    Panel panelBotoes = new Panel();
+    JButton abrir = new JButton("Abrir");
+    JButton salvar = new JButton("Salvar");
+    JButton salvarComo = new JButton("Salvar Como");
+    JButton compilar = new JButton("Compilar");
+    
     private static MainFrame instancia;
-    static Facade instanciaFacade;
+    Facade facade = Facade.getInstance();
+    String caminhoArquivo = "";
+    String nomeArquivo = "";
+    
+    private static ArrayList<String> codigoFonte = new ArrayList<>();
+    
+    
+    public static synchronized MainFrame getInstance() throws BadLocationException{
+        if (instancia == null){
+            instancia = new MainFrame();
+        }
+        return instancia;
+    }
+   
+    public MainFrame() throws BadLocationException {        
+        jsp = new JScrollPane();
+        textArea = new JTextArea();
+        statusCompilacao = new JTextField();
+        labelStatusCompilacao = new JLabel();
+        espacoEmBranco = new JLabel();
+        lines = new JTextArea("01     ");
+        lines.setBackground(Color.LIGHT_GRAY);
+        lines.setEditable(false);     
+        jsp.setPreferredSize(new Dimension(700, 500));      
 
-    public MainFrame() {
-        //instanciaFacade = new Facade();
-        instanciaFacade = Facade.getInstance();
-        initComponents();
+        abrir.addActionListener(this);
+        salvar.addActionListener(this);
+        compilar.addActionListener(this);
+        salvarComo.addActionListener(this);
+      
+        //Code to implement line numbers inside the JTextArea
+        textArea.getDocument().addDocumentListener(new DocumentListener() {
+        public String getText() {
+            int caretPosition = textArea.getDocument().getLength();
+            Element root = textArea.getDocument().getDefaultRootElement();
+            String text = "01     " + System.getProperty("line.separator");
+                for(int i = 2; i < root.getElementIndex(caretPosition) + 2; i++) {
+                    if(i<10)text += "0"+i +"      " + System.getProperty("line.separator");
+                    else
+                    text += i +"      " + System.getProperty("line.separator");
+                }
+                if(textArea.getDocument().getLength()>0){
+                    salvarComo.setEnabled(true);
+                    salvar.setEnabled(true);
+                    compilar.setEnabled(true);
+                }else{
+                    salvarComo.setEnabled(false);
+                    salvar.setEnabled(false);
+                    compilar.setEnabled(false);
+                }               
+            return text;
+        }
+            @Override
+            public void changedUpdate(DocumentEvent de) {
+                lines.setText(getText());
+            }
+            @Override
+            public void insertUpdate(DocumentEvent de) {
+                lines.setText(getText());
+             }
+             @Override
+             public void removeUpdate(DocumentEvent de) {
+                lines.setText(getText());
+             }            
+        });
+
+        jsp.getViewport().add(textArea);
+        jsp.setRowHeaderView(lines);
+        setSize(800, 600);
+      
+        panelBotoes.setLayout(new FlowLayout(FlowLayout.CENTER, 50, 0));
+        panelBotoes.setBounds(0, 50, 1360, 30);
+        statusCompilacao.setPreferredSize(new Dimension(400, 27));
+        statusCompilacao.setEditable(false);
+        espacoEmBranco.setText(" ");
+        labelStatusCompilacao.setText("                  Status da Compilacão: ");
+        
+        panelBotoes.add(jsp);
+        panelBotoes.add(abrir);
+        panelBotoes.add(salvar);
+        panelBotoes.add(salvarComo);
+        panelBotoes.add(compilar); 
+        panelBotoes.add(espacoEmBranco);
+        panelBotoes.add(labelStatusCompilacao);
+        panelBotoes.add(statusCompilacao);
+      
+        add(panelBotoes);     
+      
+      
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setVisible(true);
+        
+        salvarComo.setEnabled(false);
+        compilar.setEnabled(false);    
+        salvar.setEnabled(false);
+
+    }
+
+   
+    public void actionPerformed(ActionEvent evento) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new java.io.File("C:/Users/lucas/Downloads"));
+        
+        if(evento.getSource() == abrir){
+            chooser.showOpenDialog(this);
+            try{
+                caminhoArquivo = chooser.getSelectedFile().getAbsolutePath();
+                nomeArquivo = chooser.getSelectedFile().getName();
+            }catch(java.lang.NullPointerException e){
+                JOptionPane.showMessageDialog(null, "Aquivo nao selecionado \n "
+                +"Erro caminho: "+e.getMessage(),"Aviso", JOptionPane.WARNING_MESSAGE);
+                return;
+            }           
+            carregarCodigoFonte();
+            salvar.setEnabled(true);
+            compilar.setEnabled(true);
+            setTitle(nomeArquivo);
+        }
+                
+        if(evento.getSource() == salvar){
+            salvarArquivo();
+        }
+        
+        if(evento.getSource() == salvarComo){
+            chooser.showSaveDialog(this);
+            try{
+                caminhoArquivo = chooser.getSelectedFile().getAbsolutePath();
+                nomeArquivo = chooser.getSelectedFile().getName();
+            }catch(java.lang.NullPointerException e){
+                JOptionPane.showMessageDialog(null, "Aquivo nao selecionado \n "
+                +"Erro caminho: "+e.getMessage(),"Aviso", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            caminhoArquivo = chooser.getSelectedFile().getAbsolutePath();
+            salvarArquivo();
+            salvar.setEnabled(true);
+            compilar.setEnabled(true);
+            setTitle(nomeArquivo);
+        }
+        
+        if(evento.getSource() == compilar){
+            salvarArquivo();
+            try {
+                compilar();
+            } catch (BadLocationException ex) {
+                Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }         
+        } 	
+    }
+
+    private void salvarArquivo(){    
+        facade.salvarCodigo(textArea.getText(), caminhoArquivo);
     }
     
-    public void teste(){
-        System.out.println("Teste de instancia do mainframe");
+    private void carregarCodigoFonte(){
+        int indice = 0;
+        codigoFonte.clear();
+        textArea.setText("");
+        getPrograma(caminhoArquivo);
+            while(indice < codigoFonte.size()-1){
+                textArea.append(codigoFonte.get(indice)+"\n");
+                indice++;
+            }
     }
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
-
-        jPanel1 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        TabelaPrint = new javax.swing.JTable();
-        CampoErro = new javax.swing.JTextField();
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        jButton1.setText("Abrir txt");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
-        TabelaPrint.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null}
-            },
-            new String [] {
-                "Linha", "Codigo"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.String.class
-            };
-            boolean[] canEdit = new boolean [] {
-                false, true
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        TabelaPrint.setEnabled(false);
-        TabelaPrint.setGridColor(new java.awt.Color(102, 102, 102));
-        TabelaPrint.setSelectionBackground(new java.awt.Color(255, 255, 255));
-        TabelaPrint.setShowHorizontalLines(false);
-        jScrollPane1.setViewportView(TabelaPrint);
-        if (TabelaPrint.getColumnModel().getColumnCount() > 0) {
-            TabelaPrint.getColumnModel().getColumn(0).setMinWidth(35);
-            TabelaPrint.getColumnModel().getColumn(0).setPreferredWidth(35);
-            TabelaPrint.getColumnModel().getColumn(0).setMaxWidth(35);
-        }
-
-        CampoErro.setEditable(false);
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane1)
-                            .addComponent(CampoErro)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(200, 200, 200)
-                        .addComponent(jButton1)))
-                .addContainerGap(12, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(CampoErro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jButton1)
-                .addGap(20, 20, 20))
-        );
-
-        pack();
-    }// </editor-fold>//GEN-END:initComponents
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        JFileChooser fileChooser = new JFileChooser();
-
-        fileChooser.setCurrentDirectory(new java.io.File("."));
-        fileChooser.setDialogTitle("Escolha o Arquivo");
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileChooser.showOpenDialog(this);
-        String caminho = "";
-        ArrayList<String> linhas = new ArrayList<>();
-        String msg[] = new String[2];
-        
+    
+    public static ArrayList getPrograma(String caminho){          
         try{
-            caminho = fileChooser.getSelectedFile().getAbsolutePath();
+            FileReader arq = new FileReader(caminho);
+            BufferedReader lerArq = new BufferedReader(arq);
+            codigoFonte.clear();
+            String linha;
+            do{
+                linha = lerArq.readLine();
+                codigoFonte.add(linha);
+            }while (linha != null); 
             
-            linhas.clear();
-            linhas = instanciaFacade.getArquivoFonte(caminho);
-            instanciaFacade.chamaSintatico(caminho, "");
-            CampoErro.setText(instanciaFacade.getErroSintatico());
+            arq.close();
         }
-        catch(java.lang.NullPointerException e){
-            System.err.printf("Caminho do arquivo nao selecionao!\n");
+        catch(IOException e){
+            System.err.printf("Erro na leitura do arquivo: %s \n", e.getMessage());
         }
-
-        TabelaPrint.getColumnModel().getColumn(0).setPreferredWidth(1);
-        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) TabelaPrint.getModel(); 
-        modelo.getDataVector().removeAllElements();
-        
-        modelo.fireTableDataChanged();
-        for(int i = 0; i<linhas.size() - 1; i++){
-            modelo.addRow(new Object[]{i+1, linhas.get(i), linhas.get(i)});
-        }               
-        
-                
-        if (linhas.size()<=1){
-            modelo.addRow(new Object[]{"", "", ""});
-        }        
-        try{
-            if (instanciaFacade.getErroSintatico() != "Sucesso"){
-                msg = instanciaFacade.getErroSintatico().split(" -");        
-                JOptionPane.showMessageDialog(null, msg[0]);
-                msg = msg[0].split(": ");
-                TabelaPrint.setRowSelectionInterval(4, 4);
-                TabelaPrint.setSelectionBackground(Color.red);
-            }
-
-        }catch(java.lang.NullPointerException f){
-
-        } 
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Windows".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MainFrame().setVisible(true);
-            }
-        });
+        return codigoFonte;
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField CampoErro;
-    private javax.swing.JTable TabelaPrint;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    // End of variables declaration//GEN-END:variables
+    
+    private void compilar() throws BadLocationException{
+        int linhaErro;
+        String retornoCompilacao;
+        retornoCompilacao = facade.chamaSintatico(caminhoArquivo, nomeArquivo);
+                
+        if("Compilado com sucesso!".equals(retornoCompilacao)){
+            statusCompilacao.setText(retornoCompilacao);
+            JOptionPane.showMessageDialog(null, retornoCompilacao);
+        }else{
+            statusCompilacao.setText("Erro na linha: "+retornoCompilacao);
+            linhaErro = parseInt(retornoCompilacao.split(" - ")[0])-1;
+            JOptionPane.showMessageDialog(null, "Erro na linha: "+retornoCompilacao, 
+                    "Erro", JOptionPane.ERROR_MESSAGE);                    
+            
+            DefaultHighlighter.DefaultHighlightPainter painter = 
+                    new DefaultHighlighter.DefaultHighlightPainter(Color.RED);
+            try{
+                lines.getHighlighter().addHighlight(lines.getLineStartOffset(linhaErro), 
+                    lines.getLineEndOffset(linhaErro), painter);
+            }catch(javax.swing.text.BadLocationException e){
+            
+            }
+        }
+    }
 }

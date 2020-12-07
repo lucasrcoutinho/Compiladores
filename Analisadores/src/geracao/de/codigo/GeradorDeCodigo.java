@@ -27,7 +27,7 @@ public class GeradorDeCodigo{
     public void salvaCodigo(String nomeArquivo){
         try{
             salva.salvarCodigo(codigoGerado, "C:/Users/lucas/Downloads/Obj-" + nomeArquivo);
-        }catch(Exception e ){
+        }catch(Exception e){
             System.out.println("Erro ao gerar nome do codigo objeto");
         }
 
